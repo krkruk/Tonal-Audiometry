@@ -25,8 +25,10 @@ public:
     void setNoSoundTimeSpanMs(int miliseconds);
 
     void setPlaylist(Playlist *playlist);
-    void runPlaylist(const SoundSample::Direction &channel);
+    void playPlaylist(const SoundSample::Direction &channel);
     void resetPlaylist();
+
+    void setCorrectionAdjustVolume(short percent);
 
 signals:
     void errorString(const QString &e);
@@ -42,10 +44,14 @@ private:
     QTimer *timeGapTimer {nullptr};
 
     Playlist *playlist {nullptr};
-    std::shared_ptr<PlaylistIterVolumeSequence> playlistIter;
-    QPair<QIODevice *, int> (PlaylistIterVolumeSequence::*play)(void);
+    std::shared_ptr<PlaylistIter> playlistIter;
 
     int noSoundTimeSpanMs {2000};
+    short volumeAdjust {0};
+
+    SoundSample::Direction currentChannel {SoundSample::Direction::Left};
+    QPair<QIODevice *, int> getSample() const;
+    void setAudioDevice(QIODevice *device, int volume);
 
 };
 

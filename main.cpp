@@ -11,11 +11,6 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
-    FileSound Hz125(SoundSample::Frequency::Hz125,
-                    QString(":/soundSamples/soundSamples/Hz125Left.wav"),
-                    QString(":/soundSamples/soundSamples/Hz125Right.wav"));
-
-//    Q_UNUSED(Hz125)
     QAudioFormat m_format;
     m_format.setSampleRate(44100);
     m_format.setChannelCount(2);
@@ -43,7 +38,7 @@ int main(int argc, char *argv[])
 
     player.setPlaylist(&playlist);
 
-    player.runPlaylist(SoundSample::Direction::Left);
+    player.playPlaylist(SoundSample::Direction::Left);
 
     return app.exec();
 }
