@@ -1,0 +1,18 @@
+<RCC>
+    <qresource prefix="/soundSamples">
+        <file>soundSamples/Hz125Right.wav</file>
+        <file>soundSamples/Hz125Left.wav</file>
+        <file>soundSamples/Hz8000Right.wav</file>
+        <file>soundSamples/Hz8000Left.wav</file>
+        <file>soundSamples/Hz4000Right.wav</file>
+        <file>soundSamples/Hz4000Left.wav</file>
+        <file>soundSamples/Hz2000Right.wav</file>
+        <file>soundSamples/Hz2000Left.wav</file>
+        <file>soundSamples/Hz1000Right.wav</file>
+        <file>soundSamples/Hz1000Left.wav</file>
+        <file>soundSamples/Hz500Right.wav</file>
+        <file>soundSamples/Hz500Left.wav</file>
+        <file>soundSamples/Hz250Right.wav</file>
+        <file>soundSamples/Hz250Left.wav</file>
+    </qresource>
+</RCC>
