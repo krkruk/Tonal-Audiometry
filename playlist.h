@@ -23,6 +23,9 @@ public:
 
     virtual void skipCurrentSoundSet() = 0;
     virtual void reset();
+    virtual int getCurrentFrequency() const;
+    virtual int getCurrentVolumeDb() const;
+    virtual int getCurrentVolumePercent() const;
 
 private:
     const QList<std::shared_ptr<Sound>>::const_iterator soundIterEnd;
@@ -68,10 +71,10 @@ class Playlist : public QObject
 
     friend class PlaylistIter;
 
-    int decibelToPercent(int decibel);
-    int percentToDecibel(int percent);
-
 public:
+    static int decibelToPercent(int decibel);
+    static int percentToDecibel(int percent);
+
     explicit Playlist(QObject *parent = 0);
     Playlist(const Playlist &playlist, QObject *parent = 0);
     Playlist(Playlist &&playlist, QObject *parent = 0);

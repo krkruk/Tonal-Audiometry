@@ -6,6 +6,7 @@
 #include <QAudioOutput>
 #include <QTimer>
 #include "playlist.h"
+#include "audiogram.h"
 
 class Playlist;
 
@@ -33,6 +34,7 @@ public:
 signals:
     void errorString(const QString &e);
     void playlistEnded();
+    void currentPlaylistElement(const AudiogramData &currentElement);
 
 private slots:
     void onStateChanged(QAudio::State state);
@@ -52,7 +54,6 @@ private:
     SoundSample::Direction currentChannel {SoundSample::Direction::Left};
     QPair<QIODevice *, int> getSample() const;
     void setAudioDevice(QIODevice *device, int volume);
-
 };
 
 #endif // SOUNDPLAYER_H

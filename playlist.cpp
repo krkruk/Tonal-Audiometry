@@ -29,6 +29,21 @@ void PlaylistIter::reset()
     resetVolumeIterator();
 }
 
+int PlaylistIter::getCurrentFrequency() const
+{
+    return static_cast<int>((*soundIterator)->getFrequency());
+}
+
+int PlaylistIter::getCurrentVolumeDb() const
+{
+    return Playlist::percentToDecibel(*volumeIterator);
+}
+
+int PlaylistIter::getCurrentVolumePercent() const
+{
+    return *volumeIterator;
+}
+
 void PlaylistIter::resetSoundIterator()
 {
     soundIterator = playlist->soundOrder.constBegin();
