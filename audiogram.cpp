@@ -5,20 +5,18 @@
 AudiogramData::AudiogramData()
 {}
 
-AudiogramData::AudiogramData(int freq, int volDb, int volPercent, bool userReactionConfirmed)
-    : frequency(freq), volumeDb(volDb), volumePercent(volPercent),
-      userReactionConfirmed(userReactionConfirmed)
+AudiogramData::AudiogramData(int freq, qreal volDb, qreal volPercent)
+    : frequency(freq), volumeDb(volDb), volumePercent(volPercent)
 {}
 
 AudiogramData::AudiogramData(const AudiogramData &other)
     : frequency(other.frequency), volumeDb(other.volumeDb),
-      volumePercent(other.volumePercent), userReactionConfirmed(other.userReactionConfirmed)
+      volumePercent(other.volumePercent)
 {}
 
 AudiogramData::AudiogramData(AudiogramData &&move)
     : frequency(std::move(move.frequency)), volumeDb(std::move(move.volumeDb)),
-      volumePercent(std::move(move.volumePercent)),
-      userReactionConfirmed(std::move(move.userReactionConfirmed))
+      volumePercent(std::move(move.volumePercent))
 {}
 
 int AudiogramData::getFrequency() const
@@ -31,34 +29,24 @@ void AudiogramData::setFrequency(int value)
     frequency = value;
 }
 
-int AudiogramData::getVolumeDb() const
+qreal AudiogramData::getVolumeDb() const
 {
     return volumeDb;
 }
 
-void AudiogramData::setVolumeDb(int value)
+void AudiogramData::setVolumeDb(qreal value)
 {
     volumeDb = value;
 }
 
-int AudiogramData::getVolumePercent() const
+qreal AudiogramData::getVolumePercent() const
 {
     return volumePercent;
 }
 
-void AudiogramData::setVolumePercent(int value)
+void AudiogramData::setVolumePercent(qreal value)
 {
     volumePercent = value;
-}
-
-bool AudiogramData::getUserReactionConfirmed() const
-{
-    return userReactionConfirmed;
-}
-
-void AudiogramData::setUserReactionConfirmed(bool value)
-{
-    userReactionConfirmed = value;
 }
 
 AudiogramData &AudiogramData::operator=(const AudiogramData &a)
@@ -66,7 +54,6 @@ AudiogramData &AudiogramData::operator=(const AudiogramData &a)
     frequency = a.frequency;
     volumeDb = a.volumeDb;
     volumePercent = a.volumePercent;
-    userReactionConfirmed = a.userReactionConfirmed;
     return *this;
 }
 

@@ -20,12 +20,29 @@ void AppEngine::createPlaylist()
                          QString(":/soundSamples/soundSamples/Hz250Left.wav"),
                          QString(":/soundSamples/soundSamples/Hz250Right.wav"))});
 
-    playlist.addVolumeInPercent(100);
-    playlist.addVolumeInPercent(30);
+    volumesPercent->addVolume(0.00002);
+    volumesPercent->addVolume(0.01);
+    volumesPercent->addVolume(0.02);
+    volumesPercent->addVolume(0.04);
+    volumesPercent->addVolume(0.08);
+    volumesPercent->addVolume(0.16);
+    volumesPercent->addVolume(0.32);
+    volumesPercent->addVolume(0.64);
+    volumesPercent->addVolume(0.90);
+    volumesPercent->addVolume(1.0);
+
+    volumesSPL->addVolume(0);
+    volumesSPL->addVolume(60);
+    volumesSPL->addVolume(65);
+    volumesSPL->addVolume(100);
+
+    playlist.setVolumeAlgoritm(volumesSPL);
 }
 
 AppEngine::AppEngine(QObject *rootQmlObj, QObject *parent)
-    : QObject(parent), rootObj(rootQmlObj)
+    : QObject(parent), rootObj(rootQmlObj),
+      volumesPercent{new VolumePercentLevel},
+      volumesSPL{new VolumeDecibelSoundPressureLevel}
 {
     audioFormat.setSampleRate(44100);
     audioFormat.setChannelCount(2);

@@ -26,6 +26,8 @@ private:
     QAudioFormat audioFormat;
     SoundPlayer *player;
     Playlist playlist;
+    std::shared_ptr<VolumePercentLevel> volumesPercent;
+    std::shared_ptr<VolumeDecibelSoundPressureLevel> volumesSPL;
 };
 
 #endif // APPENGINE_H

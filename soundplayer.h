@@ -29,7 +29,7 @@ public:
     void playPlaylist(const SoundSample::Direction &channel);
     void resetPlaylist();
 
-    void setCorrectionAdjustVolume(short percent);
+    void setCorrectionAdjustVolume(qreal percent);
 
 signals:
     void errorString(const QString &e);
@@ -49,11 +49,11 @@ private:
     std::shared_ptr<PlaylistIter> playlistIter;
 
     int noSoundTimeSpanMs {2000};
-    short volumeAdjust {0};
+    qreal volumeAdjust {0.0};
 
     SoundSample::Direction currentChannel {SoundSample::Direction::Left};
-    QPair<QIODevice *, int> getSample() const;
-    void setAudioDevice(QIODevice *device, int volume);
+    QPair<QIODevice *, qreal> getSample() const;
+    void setAudioDevice(QIODevice *device, qreal volume);
 };
 
 #endif // SOUNDPLAYER_H

@@ -9,7 +9,8 @@ SOURCES += main.cpp \
     playlist.cpp \
     soundplayer.cpp \
     audiogram.cpp \
-    appengine.cpp
+    appengine.cpp \
+    volume.cpp
 
 RESOURCES += qml.qrc \
     soundsamples.qrc
@@ -27,5 +28,7 @@ HEADERS += \
     playlist.h \
     soundplayer.h \
     audiogram.h \
-    appengine.h
+    appengine.h \
+    volume.h \
+    constants.h
 

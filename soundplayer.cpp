@@ -102,7 +102,7 @@ void SoundPlayer::resetPlaylist()
  * positive integer - increase sound level
  * negative integer - decrease sound level
  */
-void SoundPlayer::setCorrectionAdjustVolume(short percent)
+void SoundPlayer::setCorrectionAdjustVolume(qreal percent)
 {
     volumeAdjust = percent;
 }
@@ -151,7 +151,7 @@ void SoundPlayer::playNextSample()
  * The function returns sound sample data according to the channel selected in
  * playPlaylist() function.
  */
-QPair<QIODevice *, int> SoundPlayer::getSample() const
+QPair<QIODevice *, qreal> SoundPlayer::getSample() const
 {
     switch(currentChannel)
     {
@@ -162,7 +162,7 @@ QPair<QIODevice *, int> SoundPlayer::getSample() const
         return playlistIter->nextRight();
         break;
     default:
-        return QPair<QIODevice *, int>(nullptr, 0);
+        return QPair<QIODevice *, qreal>(nullptr, 0);
         break;
     }
 }
@@ -176,9 +176,9 @@ QPair<QIODevice *, int> SoundPlayer::getSample() const
  * checks whether the device is open. If the device cannot be opened
  * SOUND_SAMPLE_OPEN_ERROR is emitted.
  */
-void SoundPlayer::setAudioDevice(QIODevice *device, int volume)
+void SoundPlayer::setAudioDevice(QIODevice *device, qreal volume)
 {
-    audioDevice->setVolume((volume + volumeAdjust) * 0.01);
+    audioDevice->setVolume(volume + volumeAdjust);
     if(!device->isOpen())
     {
         if(device->open(QIODevice::ReadOnly))
