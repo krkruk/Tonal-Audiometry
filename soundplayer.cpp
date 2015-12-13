@@ -74,7 +74,7 @@ void SoundPlayer::setPlaylist(Playlist *playlist)
 void SoundPlayer::playPlaylist(const SoundSample::Direction &channel)
 {
     resetPlaylist();
-    playlistIter = std::shared_ptr<PlaylistIter>(playlist->iterator());
+    playlistIter = playlist->iterator();
     currentChannel = channel;
 
     if(playlistIter->hasNext())
@@ -112,7 +112,8 @@ void SoundPlayer::onStateChanged(QAudio::State state)
     switch(state)
     {
     case QAudio::ActiveState:
-        qDebug() <<"Active State" << audioDevice->volume()*100;
+        qDebug() <<"Active State" << VolumeAlgorithm::soundPressureToDecibel(audioDevice->volume())
+                   << audioDevice->volume();
         emit currentPlaylistElement(AudiogramData(
                                         playlistIter->getCurrentFrequency(),
                                         playlistIter->getCurrentVolumeDb(),

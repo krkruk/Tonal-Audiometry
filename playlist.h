@@ -45,7 +45,8 @@ protected:
     QList<qreal>::const_iterator volumeBegin() const { return volumeIterBegin; }
     void resetSoundIterator();
     void resetVolumeIterator();
-    qreal calibrateVolume(qreal input);
+    qreal calibrate(int frequency, qreal volumePercentToCalibrate) const;
+
 };
 
 class PlaylistIterVolumeSequence : public PlaylistIter
@@ -65,6 +66,20 @@ public:
     PlaylistIterVolumeSequence operator=(const PlaylistIterVolumeSequence &p);
 };
 
+class PlaylistIterVolumeSequenceHearingLevel : public PlaylistIterVolumeSequence
+{
+
+public:
+    PlaylistIterVolumeSequenceHearingLevel(const Playlist *playlist);
+    PlaylistIterVolumeSequenceHearingLevel(const PlaylistIterVolumeSequenceHearingLevel &other);
+    ~PlaylistIterVolumeSequenceHearingLevel();
+
+    QPair<QIODevice*, qreal> nextLeft();
+    QPair<QIODevice*, qreal> nextRight();
+
+    PlaylistIterVolumeSequenceHearingLevel operator=(const PlaylistIterVolumeSequenceHearingLevel &p);
+};
+
 class Playlist : public QObject
 {
     Q_OBJECT
@@ -81,7 +96,7 @@ public:
     void addSound(const QList<std::shared_ptr<Sound>> &sounds);
     void setVolumeAlgoritm(const std::shared_ptr<VolumeAlgorithm> &volumeAlgorith);
 
-    PlaylistIterVolumeSequence *iterator() const;
+    std::shared_ptr<PlaylistIter> iterator();
 
 private:
     QList<std::shared_ptr<Sound>> soundOrder;

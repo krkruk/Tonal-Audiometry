@@ -2,19 +2,43 @@
 #define VOLUMEALGORITHM_H
 
 #include <QList>
+#include <QMap>
+#include "soundsample.h"
 
 class PlaylistIter;
 
+class VolumeCalibration
+{
+    qreal volumeGainDB {0.0};
+    QMap<int, qreal> frequencyCalibrationVolumeDB;
+
+public:
+    VolumeCalibration();
+    VolumeCalibration(qreal volumeGainDB);
+    VolumeCalibration(const VolumeCalibration &other);
+    VolumeCalibration(VolumeCalibration &&move);
+    VolumeCalibration &operator=(const VolumeCalibration &other);
+
+
+    qreal getVolumeGainDB() const;
+    void setVolumeGainDB(qreal value);
+
+    qreal getFrequencyCalibrationVolumeDB(int frequency) const;
+    qreal getFrequencyCalibrationVolumeDB(SoundSample::Frequency frequency) const;
+    void setFrequencyCalibrationVolumeDB(int frequency, qreal splCalibration);
+    void setFrequencyCalibrationVolumeDB(SoundSample::Frequency frequency, qreal splCalibration);
+};
+
 class VolumeAlgorithm
 {
-    QList<qreal> volumeInDecimalCalibrated;
-    qreal volumeCalibrationDecibel {0.0};
-    QString volumeScaleName;
     friend class PlaylistIter;
 
-protected:
-    qreal calibrate(qreal value) const;
+private:
+    QList<qreal> volumeInDecimal;
+    VolumeCalibration volumeCalibration;
+    QString volumeScaleName;
 
+protected:
     /*!
      * \brief VolumeAlgorithm::convert Converts input value into the range of [0..1]
      * \param input Value in range of [0..1]. If reimplemented, any number
@@ -26,6 +50,10 @@ protected:
      * By default, this function casts double type into qreal one.
      */
     virtual qreal convert(qreal input) = 0;
+    qreal calibrate(int freq, qreal volumePercent) const;
+    qreal calibrate(qreal volumeDb) const;
+    void setFrequencyCalibrationVolumeDB(int frequency, qreal splCalibration);
+    void setFrequencyCalibrationVolumeDB(SoundSample::Frequency frequency, qreal splCalibration);
 
 public:
     VolumeAlgorithm(const QString &volumeScaleName);
@@ -37,14 +65,17 @@ public:
     virtual void addVolume(qreal volume);
     virtual void addVolume(const QList<qreal> &volumes);
 
+    VolumeCalibration getVolumeCalibration() const;
+    void setVolumeCalibration(const VolumeCalibration &value);
+
+    qreal getVolumeGainDB() const;
+    void setVolumeGainDB(qreal value);
+
     QString getVolumeScaleName() const;
     void setVolumeScaleName(const QString &value);
 
     static qreal decibelToSoundPressure(qreal decibel);
     static qreal soundPressureToDecibel(qreal soundPressure);
-
-    qreal getVolumeCalibrationDecibel() const;
-    void setVolumeCalibrationDecibel(const qreal &value);
 };
 
 class VolumePercentLevel : public VolumeAlgorithm
@@ -71,18 +102,20 @@ public:
     ~VolumeDecibelSoundPressureLevel(){}
 };
 
-//class VolumeDecibelHearingLevel : public VolumeAlgorithm
-//{
-//protected:
-//    qreal convert(qreal input);
+class VolumeDecibelHearingLevel : public VolumeAlgorithm
+{
+protected:
+    qreal convert(qreal input);
 
-//public:
-//    VolumeDecibelHearingLevel();
-//    VolumeDecibelHearingLevel(const VolumeDecibelHearingLevel&other);
-//    VolumeDecibelHearingLevel(VolumeDecibelHearingLevel &&move);
-//    ~VolumeDecibelHearingLevel() {}
+public:
+    VolumeDecibelHearingLevel();
+    VolumeDecibelHearingLevel(const VolumeDecibelHearingLevel&other);
+    VolumeDecibelHearingLevel(VolumeDecibelHearingLevel &&move);
+    ~VolumeDecibelHearingLevel() {}
 
-//    static qreal convertToHearingLevel(qreal spl, qreal hearingLevelCoefficient);
-//};
+    void setDecibelHearingLevelCalibrationGain(int frequency, float splCalibration);
+    void setDecibelHearingLevelCalibrationGain(SoundSample::Frequency frequency,
+                                               float splCalibration);
+};
 
 #endif // VOLUMEALGORITHM_H

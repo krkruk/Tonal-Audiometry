@@ -28,6 +28,7 @@ private:
     Playlist playlist;
     std::shared_ptr<VolumePercentLevel> volumesPercent;
     std::shared_ptr<VolumeDecibelSoundPressureLevel> volumesSPL;
+    std::shared_ptr<VolumeDecibelHearingLevel> volumesHL;
 };
 
 #endif // APPENGINE_H

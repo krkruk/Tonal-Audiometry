@@ -1,4 +1,5 @@
 #include "playlist.h"
+#include "constants.h"
 #include <cmath>
 
 //PlaylistIter implementation **********************************************
@@ -14,22 +15,22 @@
  */
 PlaylistIter::PlaylistIter(const Playlist *playlist)
     : soundIterEnd(playlist->soundOrder.constEnd()),
-      volumeIterEnd(playlist->volumeOrder->volumeInDecimalCalibrated.constEnd()),
+      volumeIterEnd(playlist->volumeOrder->volumeInDecimal.constEnd()),
       soundIterBegin(playlist->soundOrder.constBegin()),
-      volumeIterBegin(playlist->volumeOrder->volumeInDecimalCalibrated.constBegin()),
+      volumeIterBegin(playlist->volumeOrder->volumeInDecimal.constBegin()),
       playlist(playlist),
       soundIterator(playlist->soundOrder.constBegin()),
-      volumeIterator(playlist->volumeOrder->volumeInDecimalCalibrated.constBegin())
+      volumeIterator(playlist->volumeOrder->volumeInDecimal.constBegin())
 {}
 
 PlaylistIter::PlaylistIter(const PlaylistIter &other)
     : soundIterEnd(other.playlist->soundOrder.constEnd()),
-      volumeIterEnd(other.playlist->volumeOrder->volumeInDecimalCalibrated.constEnd()),
+      volumeIterEnd(other.playlist->volumeOrder->volumeInDecimal.constEnd()),
       soundIterBegin(other.playlist->soundOrder.constBegin()),
-      volumeIterBegin(other.playlist->volumeOrder->volumeInDecimalCalibrated.constBegin()),
+      volumeIterBegin(other.playlist->volumeOrder->volumeInDecimal.constBegin()),
       playlist(other.playlist),
       soundIterator(other.playlist->soundOrder.constBegin()),
-      volumeIterator(other.playlist->volumeOrder->volumeInDecimalCalibrated.constBegin())
+      volumeIterator(other.playlist->volumeOrder->volumeInDecimal.constBegin())
 {}
 
 /*!
@@ -44,7 +45,7 @@ QPair<QIODevice *, qreal> PlaylistIter::nextLeft()
 {
     QPair<QIODevice *, qreal>
             leftSoundSample((*soundIterator)->getSound(SoundSample::Direction::Left),
-                            calibrateVolume(*volumeIterator));
+                            (*volumeIterator));
     return leftSoundSample;
 }
 
@@ -60,7 +61,7 @@ QPair<QIODevice *, qreal> PlaylistIter::nextRight()
 {
     QPair<QIODevice *, qreal>
             rightSoundSample((*soundIterator)->getSound(SoundSample::Direction::Right),
-                             calibrateVolume(*volumeIterator));
+                             (*volumeIterator));
     return rightSoundSample;
 }
 
@@ -107,18 +108,22 @@ void PlaylistIter::resetSoundIterator()
 
 void PlaylistIter::resetVolumeIterator()
 {
-    volumeIterator = playlist->volumeOrder->volumeInDecimalCalibrated.constBegin();
+    volumeIterator = playlist->volumeOrder->volumeInDecimal.constBegin();
 }
+
+qreal PlaylistIter::calibrate(int frequency, qreal volumePercentToCalibrate) const
+{
+    return playlist->volumeOrder->calibrate(frequency,
+                                            volumePercentToCalibrate);
+}
+
+
 
 /*!
  * \brief PlaylistIter::calibrateVolume Calibrates the volume according to VolumeAlgorithm value
  * \param input Current value in percent [0..1] that is to be played
  * \return [0..1] calibrated value
  */
-qreal PlaylistIter::calibrateVolume(qreal input)
-{
-    return playlist->volumeOrder->calibrate(input);
-}
 
 
 //PlaylistIterVolumeSequence ***********************************************
@@ -193,7 +198,40 @@ PlaylistIterVolumeSequence PlaylistIterVolumeSequence::operator=(const PlaylistI
 {
     return p;
 }
+//PlaylistIterVolumeSequenceHearingLevel implementation ***********************
+PlaylistIterVolumeSequenceHearingLevel::PlaylistIterVolumeSequenceHearingLevel(const Playlist *playlist)
+    : PlaylistIterVolumeSequence(playlist)
+{}
 
+PlaylistIterVolumeSequenceHearingLevel::PlaylistIterVolumeSequenceHearingLevel(const PlaylistIterVolumeSequenceHearingLevel &other)
+    : PlaylistIterVolumeSequence(other)
+{}
+
+PlaylistIterVolumeSequenceHearingLevel::~PlaylistIterVolumeSequenceHearingLevel()
+{}
+
+QPair<QIODevice *, qreal> PlaylistIterVolumeSequenceHearingLevel::nextLeft()
+{
+    auto currFreq = getCurrentFrequency();
+    QPair<QIODevice *, qreal>
+            leftSoundSample((*soundIterator)->getSound(SoundSample::Direction::Left),
+                            calibrate(currFreq, *volumeIterator));
+    return leftSoundSample;
+}
+
+QPair<QIODevice *, qreal> PlaylistIterVolumeSequenceHearingLevel::nextRight()
+{
+    auto currFreq = getCurrentFrequency();
+    QPair<QIODevice *, qreal>
+            rightSoundSample((*soundIterator)->getSound(SoundSample::Direction::Right),
+                             calibrate(currFreq, *volumeIterator));
+    return rightSoundSample;
+}
+
+PlaylistIterVolumeSequenceHearingLevel PlaylistIterVolumeSequenceHearingLevel::operator=(const PlaylistIterVolumeSequenceHearingLevel &p)
+{
+    return p;
+}
 
 //Playlist implementation **************************************************
 /*!
@@ -259,8 +297,10 @@ void Playlist::setVolumeAlgoritm(const std::shared_ptr<VolumeAlgorithm> &volumeA
  * The PlaylistIterVolumeSequence object must be destroyed manually
  * after it expires.
  */
-PlaylistIterVolumeSequence *Playlist::iterator() const
+std::shared_ptr<PlaylistIter> Playlist::iterator()
 {
-    return new PlaylistIterVolumeSequence(this);
+    if(volumeOrder->getVolumeScaleName() == Consts::VOLUME_DECIBEL_HEARING_LEVEL)
+        return std::shared_ptr<PlaylistIter>{new PlaylistIterVolumeSequenceHearingLevel(this)};
+    else
+        return std::shared_ptr<PlaylistIter>{new PlaylistIterVolumeSequence(this)};
 }
-

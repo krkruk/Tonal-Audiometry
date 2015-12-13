@@ -4,12 +4,133 @@
 #include <utility>
 #include <cmath>
 
-//VolumeAlgorithm implementation **********************************************
-qreal VolumeAlgorithm::calibrate(qreal value) const
+//VolumeCalibration implementation ********************************************
+/*!
+ * \brief VolumeCalibration::VolumeCalibration Sound level calibration class
+ * The class allows adjusting and calibrating audio output as user needs.
+ * It is possible to set global gain of the sound as well as setting
+ * the gain for a particular frequency
+ */
+VolumeCalibration::VolumeCalibration(){}
+
+VolumeCalibration::VolumeCalibration(qreal volumeGainDB)
+    : volumeGainDB(volumeGainDB)
+{}
+
+VolumeCalibration::VolumeCalibration(const VolumeCalibration &other)
+    : volumeGainDB(other.volumeGainDB),
+      frequencyCalibrationVolumeDB(other.frequencyCalibrationVolumeDB)
+{}
+
+VolumeCalibration::VolumeCalibration(VolumeCalibration &&move)
+    : volumeGainDB(std::move(move.volumeGainDB)),
+      frequencyCalibrationVolumeDB(std::move(move.frequencyCalibrationVolumeDB))
+{}
+
+VolumeCalibration &VolumeCalibration::operator=(const VolumeCalibration &other)
 {
-    return value + volumeCalibrationDecibel;
+    volumeGainDB = other.volumeGainDB;
+    frequencyCalibrationVolumeDB = other.frequencyCalibrationVolumeDB;
+    return *this;
 }
 
+/*!
+ * \brief VolumeCalibration::getVolumeGainDB Gets global sound gain coefficient
+ * \return qreal in decibels
+ */
+qreal VolumeCalibration::getVolumeGainDB() const
+{
+    return volumeGainDB;
+}
+
+/*!
+ * \brief VolumeCalibration::setVolumeGainDB Sets global gain coefficient
+ * \param value Decibels to be added or substracted for each sound sample
+ */
+void VolumeCalibration::setVolumeGainDB(qreal value)
+{
+    volumeGainDB = value;
+}
+
+/*!
+ * \brief VolumeCalibration::getFrequencyCalibrationVolumeDB Gets gain coefficient for a particular frequency
+ * \param frequency Frequency in integer, Herz unit
+ * \return Total gain for a particular frequency
+ * The return value consists of calibration coefficient for the particular frequency
+ * + global volume gain
+ */
+qreal VolumeCalibration::getFrequencyCalibrationVolumeDB(int frequency) const
+{
+    return frequencyCalibrationVolumeDB.value(frequency, 0) + volumeGainDB;
+}
+
+/*!
+ * \brief VolumeCalibration::getFrequencyCalibrationVolumeDB Gets gain coefficient for a particular frequency
+ * \param frequency Frequency in SoundSample::Frequency, Herz unit
+ * \return Total gain for a particular frequency
+ * The return value consists of calibration coefficient for the particular frequency
+ * + global volume gain
+ */
+qreal VolumeCalibration::getFrequencyCalibrationVolumeDB(SoundSample::Frequency frequency) const
+{
+    return frequencyCalibrationVolumeDB.value(
+                static_cast<int>(frequency), 0) + volumeGainDB;
+}
+
+/*!
+ * \brief VolumeCalibration::setFrequencyCalibrationVolumeDB Sets gain coefficient for a particular frequency
+ * \param frequency Frequency in integer, Herz unit
+ * \param splCalibration In decibel unit, value to be added/substracted for each particular frequency
+ */
+void VolumeCalibration::setFrequencyCalibrationVolumeDB(
+        int frequency, qreal splCalibration)
+{
+    frequencyCalibrationVolumeDB.insert(frequency, splCalibration);
+}
+
+/*!
+ * \brief VolumeCalibration::setFrequencyCalibrationVolumeDB Sets gain coefficient for a particular frequency
+ * \param frequency Frequency in SoundSample::Frequency, Herz unit
+ * \param splCalibration In decibel unit, value to be added/substracted for each particular frequency
+ */
+void VolumeCalibration::setFrequencyCalibrationVolumeDB(
+        SoundSample::Frequency frequency, qreal splCalibration)
+{
+    frequencyCalibrationVolumeDB.insert(
+                static_cast<int>(frequency), splCalibration);
+}
+
+//VolumeAlgorithm implementation **********************************************
+
+
+qreal VolumeAlgorithm::calibrate(int freq, qreal volumePercent) const
+{
+//    qDebug() <<volumePercent;
+//    qDebug() << VolumeAlgorithm::decibelToSoundPressure(
+//                    volumeCalibration.getFrequencyCalibrationVolumeDB(freq));
+//    return VolumeAlgorithm::decibelToSoundPressure(
+//                volumeCalibration.getFrequencyCalibrationVolumeDB(freq))
+//            + volumePercent;
+    return VolumeAlgorithm::decibelToSoundPressure(
+                volumeCalibration.getFrequencyCalibrationVolumeDB(freq)
+                + VolumeAlgorithm::soundPressureToDecibel(volumePercent));
+}
+
+qreal VolumeAlgorithm::calibrate(qreal volumeDb) const
+{
+    return volumeDb + volumeCalibration.getVolumeGainDB();
+}
+
+void VolumeAlgorithm::setFrequencyCalibrationVolumeDB(int frequency, qreal splCalibration)
+{
+    volumeCalibration.setFrequencyCalibrationVolumeDB(frequency, splCalibration);
+}
+
+void VolumeAlgorithm::setFrequencyCalibrationVolumeDB(
+        SoundSample::Frequency frequency, qreal splCalibration)
+{
+    volumeCalibration.setFrequencyCalibrationVolumeDB(frequency, splCalibration);
+}
 /*!
  * \brief VolumeAlgorithm::VolumeAlgorithm Name the VolumeAlgorithm child
  * \param volumeScaleName name of the child class
@@ -22,14 +143,12 @@ VolumeAlgorithm::VolumeAlgorithm(const QString &volumeScaleName)
 {}
 
 VolumeAlgorithm::VolumeAlgorithm(const VolumeAlgorithm &other)
-    : volumeInDecimalCalibrated(other.volumeInDecimalCalibrated),
-      volumeCalibrationDecibel(other.volumeCalibrationDecibel),
+    : volumeInDecimal(other.volumeInDecimal),
       volumeScaleName(other.volumeScaleName)
 {}
 
 VolumeAlgorithm::VolumeAlgorithm(VolumeAlgorithm &&move)
-    : volumeInDecimalCalibrated(std::move(move.volumeInDecimalCalibrated)),
-      volumeCalibrationDecibel(std::move(move.volumeCalibrationDecibel)),
+    : volumeInDecimal(std::move(move.volumeInDecimal)),
       volumeScaleName(std::move(move.volumeScaleName))
 {}
 
@@ -42,7 +161,7 @@ VolumeAlgorithm::VolumeAlgorithm(VolumeAlgorithm &&move)
  */
 void VolumeAlgorithm::addVolume(double volume)
 {
-    volumeInDecimalCalibrated.append(convert(volume));
+    volumeInDecimal.append(convert(volume));
 }
 /*!
  * \brief VolumeAlgorithm::addVolume Adds volumes to the series
@@ -54,26 +173,28 @@ void VolumeAlgorithm::addVolume(double volume)
 void VolumeAlgorithm::addVolume(const QList<double> &volumes)
 {
     for(auto elem : volumes)
-        volumeInDecimalCalibrated.append(convert(elem));
+        volumeInDecimal.append(convert(elem));
 }
 
-qreal VolumeAlgorithm::getVolumeCalibrationDecibel() const
+VolumeCalibration VolumeAlgorithm::getVolumeCalibration() const
 {
-    return volumeCalibrationDecibel;
-}
-/*!
- * \brief VolumeAlgorithm::setVolumeCalibrationDecibel Calibrate the output audio
- * \param value +/- decibels that are required to calibrate the device
- *
- * The audio output can be calibrated using this function. Enter a proper value
- * in decibels so any volume record passed into the class will be adjusted
- * according to the entered value.
- */
-void VolumeAlgorithm::setVolumeCalibrationDecibel(const qreal &value)
-{
-    volumeCalibrationDecibel = VolumeAlgorithm::decibelToSoundPressure(value);
+    return volumeCalibration;
 }
 
+void VolumeAlgorithm::setVolumeCalibration(const VolumeCalibration &value)
+{
+    volumeCalibration = value;
+}
+
+qreal VolumeAlgorithm::getVolumeGainDB() const
+{
+    return volumeCalibration.getVolumeGainDB();
+}
+
+void VolumeAlgorithm::setVolumeGainDB(qreal value)
+{
+    volumeCalibration.setVolumeGainDB(value);
+}
 /*!
  * \brief VolumeAlgorithm::getVolumeScaleName Get the name of current volume algorithm
  * \return Name of the current volume algorithm in QString format
@@ -124,6 +245,7 @@ qreal VolumeAlgorithm::soundPressureToDecibel(qreal soundPressure)
  * \brief VolumePercentLevel::convert Allows passing percent value
  * \param input Percent in range of [0..1]
  * \return Percent in range of [0..1]
+ * No calibration here is done.
  */
 qreal VolumePercentLevel::convert(qreal input)
 {
@@ -156,7 +278,7 @@ VolumePercentLevel::VolumePercentLevel(VolumePercentLevel &&move)
  */
 qreal VolumeDecibelSoundPressureLevel::convert(qreal input)
 {
-    return VolumeAlgorithm::decibelToSoundPressure(input);
+    return VolumeAlgorithm::decibelToSoundPressure(calibrate(input));
 }
 /*!
  * \brief VolumeDecibelSoundPressureLevel::VolumeDecibelSoundPressureLevel Volume algorithm for dB SPL scale
@@ -168,101 +290,64 @@ VolumeDecibelSoundPressureLevel::VolumeDecibelSoundPressureLevel()
     : VolumeAlgorithm(Consts::VOLUME_DECIBEL_SPL_LEVEL)
 {}
 
-VolumeDecibelSoundPressureLevel::VolumeDecibelSoundPressureLevel(const VolumeDecibelSoundPressureLevel &other)
+VolumeDecibelSoundPressureLevel::VolumeDecibelSoundPressureLevel(
+        const VolumeDecibelSoundPressureLevel &other)
     : VolumeAlgorithm(other)
 {}
 
-VolumeDecibelSoundPressureLevel::VolumeDecibelSoundPressureLevel(VolumeDecibelSoundPressureLevel &&move)
+VolumeDecibelSoundPressureLevel::VolumeDecibelSoundPressureLevel(
+        VolumeDecibelSoundPressureLevel &&move)
     : VolumeAlgorithm(std::move(move))
 {}
 
 ////VolumeDecibelHearingLevel implementation ************************************
-///*!
-// * \brief VolumeDecibelSoundPressureLevel::convert Allows passing dB SPL
-// * \param input Must be in db SPL scale
-// * \return System required scale [0..1]
-// */
-//qreal VolumeDecibelHearingLevel::convert(qreal input)
-//{
-//    return VolumeAlgorithm::decibelToSoundPressure(input);
-//}
-
-///*!
-// * \brief VolumeDecibelHearingLevel::VolumeDecibelHearingLevel Volume algorithm for dB HL scale
-// * This class can be utilized in passing dB HL volume levels into the playlist.
-// * The reference sound level is 0dB SPL at 1kHz frequency.
-// * The reference pressure is 2*10^-5 Pa.
-// *
-// * Example
-//  VolumeDecibelHearingLevel volHL;
-//  volHL.addVolume(VolumeDecibelHearingLevel::convertToHearingLevel());
-// */
-//VolumeDecibelHearingLevel::VolumeDecibelHearingLevel()
-//    : VolumeAlgorithm(Consts::VOLUME_DECIBEL_HEARING_LEVEL)
-//{}
-
-//VolumeDecibelHearingLevel::VolumeDecibelHearingLevel(const VolumeDecibelHearingLevel &other)
-//    : VolumeAlgorithm(other)
-//{}
-
-//VolumeDecibelHearingLevel::VolumeDecibelHearingLevel(VolumeDecibelHearingLevel &&move)
-//    : VolumeAlgorithm(std::move(move))
-//{}
-
-///*!
-// * \brief VolumeDecibelHearingLevel::convertToHearingLevel
-// * \param spl Volume intensity in db SPL scale
-// * \param hearingLevelCoefficient Correction coefficient that must be added or substracted from the dBSPL value
-// * \return Proper dBHL sound intensity value
-// *
-// * The hearingLevelCoefficient can be obtained from equal-loudness contour.
-// */
-//qreal VolumeDecibelHearingLevel::convertToHearingLevel(qreal spl, qreal hearingLevelCoefficient)
-//{
-//    return spl + hearingLevelCoefficient;
-//}
 /*!
- * \brief VolumeDecibelHearingLevel::convert Allows passing dB HL
- * \param input Must be in dB HL scale
+ * \brief VolumeDecibelSoundPressureLevel::convert Allows passing dB SPL
+ * \param input Must be in db SPL scale
  * \return System required scale [0..1]
- * This function converts dBHL value into the percent one that can be utilized
- * in QAudioOutput. The absolute threshold of hearing must be passed beforehand
  */
-//qreal VolumeDecibelHearingLevel::convert(qreal input)
-//{
-//    return VolumeAlgorithm::decibelToSoundPressure(input + hearingLevelSPL);
-//}
+qreal VolumeDecibelHearingLevel::convert(qreal input)
+{
+    return VolumeAlgorithm::decibelToSoundPressure(input);
+}
 
 /*!
  * \brief VolumeDecibelHearingLevel::VolumeDecibelHearingLevel Volume algorithm for dB HL scale
  * This class can be utilized in passing dB HL volume levels into the playlist.
  * The reference sound level is 0dB SPL at 1kHz frequency.
  * The reference pressure is 2*10^-5 Pa.
- *
- * Example
- * VolumeDecibelHearingLevel volHL;
- * volHL.setHearingLevel(5);
- * volHL.addVolume(0); //results in 5dBSPL and 0dBHL
  */
-//VolumeDecibelHearingLevel::VolumeDecibelHearingLevel()
-//    : VolumeAlgorithm(Consts::VOLUME_DECIBEL_HEARING_LEVEL)
-//{}
+VolumeDecibelHearingLevel::VolumeDecibelHearingLevel()
+    : VolumeAlgorithm(Consts::VOLUME_DECIBEL_HEARING_LEVEL)
+{}
 
-//VolumeDecibelHearingLevel::VolumeDecibelHearingLevel(const VolumeDecibelHearingLevel &other)
-//    : VolumeAlgorithm(other)
-//{}
+VolumeDecibelHearingLevel::VolumeDecibelHearingLevel(const VolumeDecibelHearingLevel &other)
+    : VolumeAlgorithm(other)
+{}
 
-//VolumeDecibelHearingLevel::VolumeDecibelHearingLevel(VolumeDecibelHearingLevel &&move)
-//    : VolumeAlgorithm(std::move(move))
-//{}
+VolumeDecibelHearingLevel::VolumeDecibelHearingLevel(VolumeDecibelHearingLevel &&move)
+    : VolumeAlgorithm(std::move(move))
+{}
 
-///*!
-// * \brief VolumeDecibelHearingLevel::setHearingLevel Adds Hearing Level threshold
-// * \param spl The threshold in dbSPL
-// * The spl can be obtained from absolute threshold of hearing chart
-// * e.g. @1000Hz ATH is 3 dBSPL and 0 dBHL
-// */
-//void VolumeDecibelHearingLevel::setHearingLevel(qreal spl)
-//{
-//    hearingLevelSPL = spl;
-//}
+/*!
+ * \brief VolumeDecibelHearingLevel::setDecibelHearingLevelCalibrationGain Sets gain coefficient for a particular frequency
+ * \param frequency Frequency in integer, Herz unit
+ * \param splCalibration Decibel, to be added/substracted from the each value passed at given frequency
+ */
+void VolumeDecibelHearingLevel::setDecibelHearingLevelCalibrationGain(
+        int frequency, float splCalibration)
+{
+    this->setFrequencyCalibrationVolumeDB(frequency, splCalibration);
+}
+
+/*!
+ * \brief VolumeDecibelHearingLevel::setDecibelHearingLevelCalibrationGain Sets gain coefficient for a particular frequency
+ * \param frequency Frequency in SoundSample::Frequency, Herz unit
+ * \param splCalibration Decibel, to be added/substracted from the each value passed at given frequency
+ */
+void VolumeDecibelHearingLevel::setDecibelHearingLevelCalibrationGain(
+        SoundSample::Frequency frequency, float splCalibration)
+{
+    this->setFrequencyCalibrationVolumeDB(frequency, splCalibration);
+}
+
