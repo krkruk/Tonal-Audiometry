@@ -6,42 +6,65 @@ Window {
     visible: true
     width: 480
     height: 640
+    color: "black"
 
     signal playSequence();
+    signal heardButtonClicked();
 
-    Column{
-        spacing: 20
-
-        Rectangle{
-            id: quitButton
-            width: mainWindow.width
-            height: 100
-
-            Text {
-                text: qsTr("Quit");
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-            }
-            MouseArea{
-                anchors.fill: parent
-                onClicked: Qt.quit()
-            }
-        }
-
-        Rectangle{
-            id: playButton
-            width: mainWindow.width
-            height: 100
-
-            Text {
-                text: qsTr("Play");
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.verticalCenter: parent.verticalCenter
-            }
-            MouseArea{
-                anchors.fill: parent
-                onClicked: mainWindow.playSequence();
-            }
-        }
+    Connections {
+        target: appEngine
+        onPlaylistEnded: playButton.state = "startPlayState"
     }
+
+    TopBar{
+        id: topBar
+        anchors.top: parent.top
+        width: mainWindow.width
+        height: mainWindow.height * 0.075
+    }
+
+    Button {
+        id: quitButton
+        anchors.left: parent.left
+        anchors.bottom: parent.bottom
+        width: mainWindow.width / 2
+        height: 100
+        text: qsTr("Quit")
+        onClicked: Qt.quit()
+    }
+
+        Button {
+            id: playButton
+            anchors.right: parent.right
+            anchors.bottom: parent.bottom
+            width: mainWindow.width / 2
+            height: 100
+            state: "startPlayState"
+
+            states: [
+                State{
+                    name: "startPlayState"
+                    PropertyChanges {
+                        target: playButton
+                        text: qsTr("Play")
+                        onClicked: {
+                            mainWindow.playSequence();
+                            state = "playingState";
+                        }
+                    }
+                },
+                State{
+                    name: "playingState"
+                    PropertyChanges {
+                        target: playButton
+                        text: qsTr("I hear the sound")
+                        onClicked: {
+                            mainWindow.heardButtonClicked();
+                            state = "startPlayState";
+                        }
+                    }
+                }
+            ]
+        }
+
 }

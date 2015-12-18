@@ -57,41 +57,34 @@ AudiogramData &AudiogramData::operator=(const AudiogramData &a)
     return *this;
 }
 
-//QDebug AudiogramData::operator<<(QDebug dbg, const AudiogramData &a)
-//{
-//    QString msg("Freq: ");
-//    msg += QString::number(a.frequency) + '\n';
-//    msg += "VolDB: " + QString::number(a.volumeDb) + '\n';
-//    msg += "Vol%: " + QString::number(a.volumePercent) + '\n';
-//    msg += "UserInteraction: " + QString::number(a.userReactionConfirmed) + '\n';
-
-//    return QDebug(msg);
-//}
-
-//AudiogramObserver implementation ********************************************
-
-AudiogramObserver::AudiogramObserver()
+//AudiogramPlotData implementation ********************************************
+AudiogramPlotData::AudiogramPlotData()
+    : AudiogramObservable()
 {}
 
-AudiogramObserver::AudiogramObserver(const AudiogramObserver &other)
-    : audiogramData(other.audiogramData)
+AudiogramPlotData::~AudiogramPlotData()
 {}
 
-AudiogramObserver::AudiogramObserver(AudiogramObserver &&move)
-    : audiogramData(std::move(move.audiogramData))
-{}
-
-void AudiogramObserver::appendNewData(const AudiogramData &audiogram)
+/*!
+ * \brief AudiogramPlotData::update Append new data to the audiogram
+ * \param audiogram AudiogramData
+ */
+void AudiogramPlotData::update(const AudiogramData &audiogram)
 {
     audiogramData.append(audiogram);
 }
 
-QList<AudiogramData> AudiogramObserver::getData() const
+/*!
+ * \brief AudiogramPlotData::getSortedData Return sorted data in ascending order
+ * \return QList<AudiogramData> in ascending order
+ * This function returns ordered data so it can be used in drawing an
+ * audiogram chart
+ */
+QList<AudiogramData> AudiogramPlotData::getSortedData()
 {
-    return audiogramData;
-}
-
-void AudiogramObserver::clear()
-{
-    audiogramData.clear();
+    auto audiogramDataSort(audiogramData);
+    qSort(audiogramDataSort);
+//    qSort(audiogramDataSort.begin(), audiogramDataSort.end(),
+//          [&](const auto &a, const auto &b){return a.getFrequency() > b.getFrequency();});
+    return audiogramDataSort;
 }

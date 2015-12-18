@@ -12,14 +12,20 @@ class AppEngine : public QObject
 
     void createPlaylist();
 public:
-    explicit AppEngine(QObject *rootQmlObj, QObject *parent = 0);
+    explicit AppEngine(QObject *parent = 0);
     ~AppEngine();
 
+    void setRootQmlObject(QObject *rootQmlObj);
+    void connectAll();
+
 signals:
+    void playlistEnded();
 
 public slots:
     void playPlaylist();
     void onCurrentPlaylistElement(const AudiogramData &data);
+    void onPlaylistEnded();
+    void onHearingButtonClicked(const AudiogramData &audiogramData);
 
 private:
     QObject *rootObj {nullptr};

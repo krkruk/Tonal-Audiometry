@@ -1,7 +1,7 @@
 TEMPLATE = app
 
 QT += qml quick multimedia core
-CONFIG += c++11
+CONFIG += c++14
 
 SOURCES += main.cpp \
     sound.cpp \

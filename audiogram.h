@@ -36,20 +36,33 @@ public:
         return dbg;
     }
 
+    bool operator<(const AudiogramData &a) const
+    {
+        return frequency < a.frequency;
+    }
+    bool operator>(const AudiogramData &a) const
+    {
+        return frequency > a.frequency;
+    }
 };
 
-class AudiogramObserver
+class AudiogramObservable
+{
+public:
+    AudiogramObservable(){}
+    virtual ~AudiogramObservable(){}
+    virtual void update(const AudiogramData &audiogram) = 0;
+};
+
+class AudiogramPlotData : public AudiogramObservable
 {
     QList<AudiogramData> audiogramData;
-
 public:
-    AudiogramObserver();
-    AudiogramObserver(const AudiogramObserver &other);
-    AudiogramObserver(AudiogramObserver &&move);
+    AudiogramPlotData();
+    ~AudiogramPlotData();
 
-    virtual void appendNewData(const AudiogramData &audiogram);
-    QList<AudiogramData> getData() const;
-    void clear();
+    void update(const AudiogramData &audiogram);
+    QList<AudiogramData> getSortedData();
 };
 
 #endif // AUDIOGRAMDATA_H

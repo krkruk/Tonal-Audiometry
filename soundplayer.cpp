@@ -90,6 +90,11 @@ void SoundPlayer::resetPlaylist()
     playlistIter.reset();
 }
 
+void SoundPlayer::skipCurrentSoundSet()
+{
+    playlistIter->skipCurrentSoundSet();
+}
+
 /*!
  * \brief SoundPlayer::setCorrectionAdjustVolume Adjust sound level to the proper level
  * \param percent +/- value of the initial sound amplitude

@@ -28,6 +28,7 @@ public:
     void setPlaylist(Playlist *playlist);
     void playPlaylist(const SoundSample::Direction &channel);
     void resetPlaylist();
+    void skipCurrentSoundSet();
 
     void setCorrectionAdjustVolume(qreal percent);
 

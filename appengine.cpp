@@ -11,14 +11,14 @@ void AppEngine::createPlaylist()
                         {new FileSound(SoundSample::Frequency::Hz8000,
                          QString(":/soundSamples/soundSamples/Hz8000Left.wav"),
                          QString(":/soundSamples/soundSamples/Hz8000Right.wav"))});
-    playlist.addSound(std::shared_ptr<Sound>
-                        {new FileSound(SoundSample::Frequency::Hz500,
-                         QString(":/soundSamples/soundSamples/Hz500Left.wav"),
-                         QString(":/soundSamples/soundSamples/Hz500Right.wav"))});
-    playlist.addSound(std::shared_ptr<Sound>
-                        {new FileSound(SoundSample::Frequency::Hz250,
-                         QString(":/soundSamples/soundSamples/Hz250Left.wav"),
-                         QString(":/soundSamples/soundSamples/Hz250Right.wav"))});
+//    playlist.addSound(std::shared_ptr<Sound>
+//                        {new FileSound(SoundSample::Frequency::Hz500,
+//                         QString(":/soundSamples/soundSamples/Hz500Left.wav"),
+//                         QString(":/soundSamples/soundSamples/Hz500Right.wav"))});
+//    playlist.addSound(std::shared_ptr<Sound>
+//                        {new FileSound(SoundSample::Frequency::Hz250,
+//                         QString(":/soundSamples/soundSamples/Hz250Left.wav"),
+//                         QString(":/soundSamples/soundSamples/Hz250Right.wav"))});
 
     volumesPercent->addVolume(0.00002);
     volumesPercent->addVolume(0.01);
@@ -48,19 +48,27 @@ void AppEngine::createPlaylist()
     volumesHL->setDecibelHearingLevelCalibrationGain(SoundSample::Frequency::Hz8000, 13.0);
     volumesHL->addVolume(50);
     volumesHL->addVolume(40);
-    volumesHL->addVolume(30);
-    volumesHL->addVolume(20);
-    volumesHL->addVolume(10);
-    volumesHL->addVolume(0);
-    volumesHL->addVolume(60);
-    volumesHL->addVolume(65);
-    volumesHL->addVolume(70);
+//    volumesHL->addVolume(30);
+//    volumesHL->addVolume(20);
+//    volumesHL->addVolume(10);
+//    volumesHL->addVolume(0);
+//    volumesHL->addVolume(60);
+//    volumesHL->addVolume(65);
+//    volumesHL->addVolume(70);
+//    volumesHL->addVolume(110);
 
     playlist.setVolumeAlgoritm(volumesHL);
 }
 
-AppEngine::AppEngine(QObject *rootQmlObj, QObject *parent)
-    : QObject(parent), rootObj(rootQmlObj),
+void AppEngine::connectAll()
+{
+    connect(rootObj, SIGNAL(playSequence()), this, SLOT(playPlaylist()));
+    connect(player, SIGNAL(currentPlaylistElement(AudiogramData)), this, SLOT(onCurrentPlaylistElement(AudiogramData)));
+    connect(player, SIGNAL(playlistEnded()), this, SLOT(onPlaylistEnded()));
+}
+
+AppEngine::AppEngine(QObject *parent)
+    : QObject(parent), rootObj(nullptr),
       volumesPercent{new VolumePercentLevel},
       volumesSPL{new VolumeDecibelSoundPressureLevel},
       volumesHL{new VolumeDecibelHearingLevel}
@@ -75,14 +83,16 @@ AppEngine::AppEngine(QObject *rootQmlObj, QObject *parent)
     player = new SoundPlayer(audioFormat, QAudioDeviceInfo::defaultOutputDevice(), this);
     createPlaylist();
     player->setPlaylist(&playlist);
-
-    connect(rootObj, SIGNAL(playSequence()), this, SLOT(playPlaylist()));
-    connect(player, SIGNAL(currentPlaylistElement(AudiogramData)), this, SLOT(onCurrentPlaylistElement(AudiogramData)));
 }
 
 AppEngine::~AppEngine()
 {
     delete player;
+}
+
+void AppEngine::setRootQmlObject(QObject *rootQmlObj)
+{
+    rootObj = rootQmlObj;
 }
 
 void AppEngine::playPlaylist()
@@ -93,5 +103,16 @@ void AppEngine::playPlaylist()
 void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
 {
     qDebug() << data;
+}
+
+void AppEngine::onPlaylistEnded()
+{
+    emit playlistEnded();
+    player->resetPlaylist();
+}
+
+void AppEngine::onHearingButtonClicked(const AudiogramData &audiogramData)
+{
+
 }
 
