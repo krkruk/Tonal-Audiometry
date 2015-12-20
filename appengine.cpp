@@ -66,6 +66,7 @@ void AppEngine::connectAll()
     connect(rootObj, SIGNAL(heardButtonClicked()), this, SLOT(onHearingButtonClicked()));
     connect(player, SIGNAL(currentPlaylistElement(AudiogramData)), this, SLOT(onCurrentPlaylistElement(AudiogramData)));
     connect(player, SIGNAL(playlistEnded()), this, SLOT(onPlaylistEnded()));
+    connect(player, SIGNAL(aboutToPlayNextElement()), this, SLOT(onAboutToPlayNextElement()));
 }
 
 AppEngine::AppEngine(QObject *parent)
@@ -108,13 +109,8 @@ void AppEngine::playPlaylist()
 
 void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
 {
-    if(!hearingButtonClicked)
-    {
-        audiogramPlotData.update(currentAudiogramData);
-        player->skipCurrentSoundSet();
-    }
-    currentAudiogramData = data;
-    unsetHearingButton();
+    audiogramPlotData.update(data);
+    canPopElement = false;
 }
 
 void AppEngine::onPlaylistEnded()
@@ -131,6 +127,17 @@ void AppEngine::onPlaylistEnded()
 
 void AppEngine::onHearingButtonClicked()
 {
-    setHearingButtonClicked();
+    canPopElement = true;
+}
+
+void AppEngine::onAboutToPlayNextElement()
+{
+    if(canPopElement)
+    {
+        audiogramPlotData.popLast();
+        canPopElement = false;
+    }
+    else
+        player->skipCurrentSoundSet();  //sound not heard - skip
 }
 

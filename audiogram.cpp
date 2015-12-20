@@ -88,3 +88,13 @@ QList<AudiogramData> AudiogramPlotData::getSortedData()
 //          [&](const auto &a, const auto &b){return a.getFrequency() > b.getFrequency();});
     return audiogramDataSort;
 }
+
+bool AudiogramPlotData::popLast()
+{
+    if(!audiogramData.isEmpty())
+    {
+        audiogramData.pop_back();
+        return true;
+    }
+    return false;
+}

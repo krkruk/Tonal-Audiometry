@@ -135,6 +135,7 @@ void SoundPlayer::onStateChanged(QAudio::State state)
     case QAudio::IdleState:
         qDebug() <<"Idle State";
         audioDevice->stop();
+        emit stopPlaying();
         break;
     default: break;
     }
@@ -142,6 +143,8 @@ void SoundPlayer::onStateChanged(QAudio::State state)
 
 void SoundPlayer::playNextSample()
 {
+    emit aboutToPlayNextElement();
+
     if(playlistIter->hasNext())
     {
         auto sample = getSample();
@@ -188,10 +191,7 @@ void SoundPlayer::setAudioDevice(QIODevice *device, qreal volume)
     if(!device->isOpen())
     {
         if(device->open(QIODevice::ReadOnly))
-        {
-            emit aboutToPlayNextElement();
             audioDevice->start(device);
-        }
         else
             emit errorString(SOUND_SAMPLE_OPEN_ERROR);
     }

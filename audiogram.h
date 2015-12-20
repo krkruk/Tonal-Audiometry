@@ -63,6 +63,7 @@ public:
 
     void update(const AudiogramData &audiogram);
     QList<AudiogramData> getSortedData();
+    bool popLast();
 };
 
 #endif // AUDIOGRAMDATA_H

@@ -27,6 +27,7 @@ public slots:
     void onCurrentPlaylistElement(const AudiogramData &data);
     void onPlaylistEnded();
     void onHearingButtonClicked();
+    void onAboutToPlayNextElement();
 
 private:
     QObject *rootObj {nullptr};
@@ -39,9 +40,9 @@ private:
 
     AudiogramPlotData audiogramPlotData;
     AudiogramData currentAudiogramData;
-    bool hearingButtonClicked {true};
-    void unsetHearingButton() { hearingButtonClicked = false; }
-    void setHearingButtonClicked() { hearingButtonClicked = true; }
+
+    bool canPopElement {false};
+
 };
 
 #endif // APPENGINE_H

@@ -37,6 +37,7 @@ signals:
     void playlistEnded();
     void currentPlaylistElement(const AudiogramData &currentElement);
     void aboutToPlayNextElement();
+    void stopPlaying();
 
 private slots:
     void onStateChanged(QAudio::State state);
