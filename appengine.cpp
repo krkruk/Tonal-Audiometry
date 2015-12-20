@@ -111,7 +111,6 @@ void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
     if(!hearingButtonClicked)
     {
         audiogramPlotData.update(currentAudiogramData);
-        player->stopCurrentElement();
         player->skipCurrentSoundSet();
     }
     currentAudiogramData = data;

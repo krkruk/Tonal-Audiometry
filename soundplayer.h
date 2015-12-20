@@ -27,7 +27,6 @@ public:
 
     void setPlaylist(Playlist *playlist);
     void playPlaylist(const SoundSample::Direction &channel);
-    void stopCurrentElement();
     void resetPlaylist();
     void skipCurrentSoundSet();
 

@@ -85,11 +85,6 @@ void SoundPlayer::playPlaylist(const SoundSample::Direction &channel)
     else emit errorString(PLAYLIST_ERROR);
 }
 
-void SoundPlayer::stopCurrentElement()
-{
-    audioDevice->stop();
-}
-
 void SoundPlayer::resetPlaylist()
 {
     playlistIter.reset();
