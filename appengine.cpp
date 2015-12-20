@@ -11,10 +11,10 @@ void AppEngine::createPlaylist()
                         {new FileSound(SoundSample::Frequency::Hz8000,
                          QString(":/soundSamples/soundSamples/Hz8000Left.wav"),
                          QString(":/soundSamples/soundSamples/Hz8000Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz500,
-//                         QString(":/soundSamples/soundSamples/Hz500Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz500Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz500,
+                         QString(":/soundSamples/soundSamples/Hz500Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz500Right.wav"))});
 //    playlist.addSound(std::shared_ptr<Sound>
 //                        {new FileSound(SoundSample::Frequency::Hz250,
 //                         QString(":/soundSamples/soundSamples/Hz250Left.wav"),
@@ -48,8 +48,8 @@ void AppEngine::createPlaylist()
     volumesHL->setDecibelHearingLevelCalibrationGain(SoundSample::Frequency::Hz8000, 13.0);
     volumesHL->addVolume(50);
     volumesHL->addVolume(40);
-//    volumesHL->addVolume(30);
-//    volumesHL->addVolume(20);
+    volumesHL->addVolume(30);
+    volumesHL->addVolume(20);
 //    volumesHL->addVolume(10);
 //    volumesHL->addVolume(0);
 //    volumesHL->addVolume(60);
@@ -63,6 +63,7 @@ void AppEngine::createPlaylist()
 void AppEngine::connectAll()
 {
     connect(rootObj, SIGNAL(playSequence()), this, SLOT(playPlaylist()));
+    connect(rootObj, SIGNAL(heardButtonClicked()), this, SLOT(onHearingButtonClicked()));
     connect(player, SIGNAL(currentPlaylistElement(AudiogramData)), this, SLOT(onCurrentPlaylistElement(AudiogramData)));
     connect(player, SIGNAL(playlistEnded()), this, SLOT(onPlaylistEnded()));
 }
@@ -102,17 +103,32 @@ void AppEngine::playPlaylist()
 
 void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
 {
-    qDebug() << data;
+    if(!hearingButtonClicked)
+    {
+        audiogramPlotData.update(currentAudiogramData);
+        player->stopCurrentElement();
+        player->skipCurrentSoundSet();
+    }
+    currentAudiogramData = data;
+    unsetHearingButton();
 }
 
 void AppEngine::onPlaylistEnded()
 {
     emit playlistEnded();
     player->resetPlaylist();
+    //print an audiogram
+
+    auto audiogram = audiogramPlotData.getSortedData();
+    for(auto elem : audiogram)
+        qDebug() << elem;
+
 }
 
-void AppEngine::onHearingButtonClicked(const AudiogramData &audiogramData)
+void AppEngine::onHearingButtonClicked()
 {
+    setHearingButtonClicked();
+
 
 }
 

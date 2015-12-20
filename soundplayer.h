@@ -27,6 +27,7 @@ public:
 
     void setPlaylist(Playlist *playlist);
     void playPlaylist(const SoundSample::Direction &channel);
+    void stopCurrentElement();
     void resetPlaylist();
     void skipCurrentSoundSet();
 
@@ -36,6 +37,7 @@ signals:
     void errorString(const QString &e);
     void playlistEnded();
     void currentPlaylistElement(const AudiogramData &currentElement);
+    void aboutToPlayNextElement();
 
 private slots:
     void onStateChanged(QAudio::State state);

@@ -60,7 +60,6 @@ Window {
                         text: qsTr("I hear the sound")
                         onClicked: {
                             mainWindow.heardButtonClicked();
-                            state = "startPlayState";
                         }
                     }
                 }

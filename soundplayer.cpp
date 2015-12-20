@@ -85,6 +85,11 @@ void SoundPlayer::playPlaylist(const SoundSample::Direction &channel)
     else emit errorString(PLAYLIST_ERROR);
 }
 
+void SoundPlayer::stopCurrentElement()
+{
+    audioDevice->stop();
+}
+
 void SoundPlayer::resetPlaylist()
 {
     playlistIter.reset();
@@ -188,7 +193,10 @@ void SoundPlayer::setAudioDevice(QIODevice *device, qreal volume)
     if(!device->isOpen())
     {
         if(device->open(QIODevice::ReadOnly))
+        {
+            emit aboutToPlayNextElement();
             audioDevice->start(device);
+        }
         else
             emit errorString(SOUND_SAMPLE_OPEN_ERROR);
     }
