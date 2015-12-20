@@ -13,7 +13,10 @@ Window {
 
     Connections {
         target: appEngine
-        onPlaylistEnded: playButton.state = "startPlayState"
+        onPlaylistEnded: {
+            playButton.state = "startPlayState"
+            audiogram.source = "image://audiogram/data"
+        }
     }
 
     TopBar{
@@ -23,7 +26,8 @@ Window {
         height: mainWindow.height * 0.075
     }
     Image{
-        source: "image://audiogram"
+        id: audiogram
+        source: "image://audiogram/helloWorld"
         width: parent.width
         height: parent.height/2
         anchors.centerIn: parent
@@ -56,6 +60,7 @@ Window {
                         onClicked: {
                             mainWindow.playSequence();
                             state = "playingState";
+                            audiogram.source = "image://audiogram/blank"
                         }
                     }
                 },

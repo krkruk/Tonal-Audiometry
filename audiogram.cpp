@@ -74,6 +74,16 @@ void AudiogramPlotData::update(const AudiogramData &audiogram)
     audiogramData.append(audiogram);
 }
 
+void AudiogramPlotData::update(const QList<AudiogramData> &audiogram)
+{
+    audiogramData.append(audiogram);
+}
+
+void AudiogramPlotData::clear()
+{
+    audiogramData.clear();
+}
+
 /*!
  * \brief AudiogramPlotData::getSortedData Return sorted data in ascending order
  * \return QList<AudiogramData> in ascending order
@@ -97,4 +107,13 @@ bool AudiogramPlotData::popLast()
         return true;
     }
     return false;
+}
+
+AudiogramData AudiogramPlotData::getLast() const
+{
+    if(!audiogramData.isEmpty())
+        return audiogramData.last();
+    else
+        return AudiogramData();
+
 }

@@ -51,19 +51,36 @@ class AudiogramObservable
 public:
     AudiogramObservable(){}
     virtual ~AudiogramObservable(){}
+    virtual void clear() = 0;
+
+public slots:
     virtual void update(const AudiogramData &audiogram) = 0;
+    virtual void update(const QList<AudiogramData> &audiogram) = 0;
 };
 
 class AudiogramPlotData : public AudiogramObservable
 {
     QList<AudiogramData> audiogramData;
+
+protected:
+    const QList<AudiogramData> &getAudiogramData() const {return audiogramData;}
+
 public:
     AudiogramPlotData();
     ~AudiogramPlotData();
 
-    void update(const AudiogramData &audiogram);
+    void clear();
     QList<AudiogramData> getSortedData();
     bool popLast();
+    AudiogramData getLast() const;
+
+    QList<AudiogramData>::const_iterator begin() { return audiogramData.constBegin(); }
+    QList<AudiogramData>::const_iterator end() { return audiogramData.constEnd(); }
+
+public slots:
+    void update(const AudiogramData &audiogram);
+    void update(const QList<AudiogramData> &audiogram);
+
 };
 
 #endif // AUDIOGRAMDATA_H

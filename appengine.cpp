@@ -8,36 +8,31 @@ void AppEngine::createPlaylist()
                          QString(":/soundSamples/soundSamples/Hz1000Left.wav"),
                          QString(":/soundSamples/soundSamples/Hz1000Right.wav"))});
     playlist.addSound(std::shared_ptr<Sound>
-                        {new FileSound(SoundSample::Frequency::Hz8000,
-                         QString(":/soundSamples/soundSamples/Hz8000Left.wav"),
-                         QString(":/soundSamples/soundSamples/Hz8000Right.wav"))});
+                        {new FileSound(SoundSample::Frequency::Hz250,
+                         QString(":/soundSamples/soundSamples/Hz250Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz250Right.wav"))});
     playlist.addSound(std::shared_ptr<Sound>
                         {new FileSound(SoundSample::Frequency::Hz500,
                          QString(":/soundSamples/soundSamples/Hz500Left.wav"),
                          QString(":/soundSamples/soundSamples/Hz500Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz250,
-//                         QString(":/soundSamples/soundSamples/Hz250Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz250Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz125,
+                         QString(":/soundSamples/soundSamples/Hz125Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz125Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz8000,
+                         QString(":/soundSamples/soundSamples/Hz8000Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz8000Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz2000,
+                         QString(":/soundSamples/soundSamples/Hz2000Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz2000Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz4000,
+                         QString(":/soundSamples/soundSamples/Hz4000Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz4000Right.wav"))});
 
-    volumesPercent->addVolume(0.00002);
-    volumesPercent->addVolume(0.01);
-    volumesPercent->addVolume(0.02);
-    volumesPercent->addVolume(0.04);
-    volumesPercent->addVolume(0.08);
-    volumesPercent->addVolume(0.16);
-    volumesPercent->addVolume(0.32);
-    volumesPercent->addVolume(0.64);
-    volumesPercent->addVolume(0.90);
-    volumesPercent->addVolume(1.0);
 
-    volumesSPL->addVolume(3);
-    volumesSPL->addVolume(63);
-//    volumesSPL->addVolume(30);
-//    volumesSPL->addVolume(40);
-//    volumesSPL->addVolume(50);
-//    volumesSPL->addVolume(60);
-//    volumesSPL->addVolume(65);
 
     volumesHL->setDecibelHearingLevelCalibrationGain(SoundSample::Frequency::Hz125, 45.0);
     volumesHL->setDecibelHearingLevelCalibrationGain(SoundSample::Frequency::Hz250, 15.0);
@@ -46,18 +41,31 @@ void AppEngine::createPlaylist()
     volumesHL->setDecibelHearingLevelCalibrationGain(SoundSample::Frequency::Hz2000, -3.0);
     volumesHL->setDecibelHearingLevelCalibrationGain(SoundSample::Frequency::Hz4000, -4.0);
     volumesHL->setDecibelHearingLevelCalibrationGain(SoundSample::Frequency::Hz8000, 13.0);
+
+
+    volumesHL->addVolume(70);
+    volumesHL->addVolume(60);
     volumesHL->addVolume(50);
     volumesHL->addVolume(40);
     volumesHL->addVolume(30);
     volumesHL->addVolume(20);
-//    volumesHL->addVolume(10);
-//    volumesHL->addVolume(0);
-//    volumesHL->addVolume(60);
-//    volumesHL->addVolume(65);
-//    volumesHL->addVolume(70);
-//    volumesHL->addVolume(110);
+    volumesHL->addVolume(10);
+    volumesHL->addVolume(0);
+    volumesHL->addVolume(90);
+    volumesHL->addVolume(80);
+    volumesHL->addVolume(100);
+    volumesHL->addVolume(110);
+    volumesHL->addVolume(MAX_VOLUME_DB);
 
     playlist.setVolumeAlgoritm(volumesHL);
+}
+
+void AppEngine::resetVariables()
+{
+    canPopElement = false;
+    audiogramPlotData.clear();
+    currentAudiogramData = AudiogramData();
+    isEverButtonPressed = false;
 }
 
 void AppEngine::connectAll()
@@ -68,6 +76,7 @@ void AppEngine::connectAll()
     connect(player, SIGNAL(playlistEnded()), this, SLOT(onPlaylistEnded()));
     connect(player, SIGNAL(aboutToPlayNextElement()), this, SLOT(onAboutToPlayNextElement()));
 }
+
 
 AppEngine::AppEngine(QObject *parent)
     : QObject(parent), rootObj(nullptr),
@@ -104,40 +113,59 @@ void AppEngine::setRootQmlObject(QObject *rootQmlObj)
 
 void AppEngine::playPlaylist()
 {
+    resetVariables();
     player->playPlaylist(SoundSample::Direction::Left);
 }
 
 void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
 {
+    /*
+     * A user is presumed not to hear the sound.
+     */
     audiogramPlotData.update(data);
     canPopElement = false;
 }
 
 void AppEngine::onPlaylistEnded()
 {
-    emit playlistEnded();
     player->resetPlaylist();
-    //print an audiogram
 
-    auto audiogram = audiogramPlotData.getSortedData();
-    for(auto elem : audiogram)
-        qDebug() << elem;
-
+    emit playlistEnded();
 }
 
 void AppEngine::onHearingButtonClicked()
 {
+    /*
+     * If the user heard the sound, he would press the button
+     */
     canPopElement = true;
+    isEverButtonPressed = true;
 }
 
 void AppEngine::onAboutToPlayNextElement()
 {
+    /*
+     * Check the user input. If he pressed the button,
+     * the current AudiogramData element is poped.
+     * If the user didn't hear the sound the current AudiogramData
+     * is not poped and the playlist skips to the next
+     * frequency
+     */
     if(canPopElement)
     {
         audiogramPlotData.popLast();
         canPopElement = false;
     }
     else
-        player->skipCurrentSoundSet();  //sound not heard - skip
+    {
+        if(isEverButtonPressed)
+            player->skipCurrentSoundSet();  //sound not heard - skip
+        else
+        {
+            auto lastElem = audiogramPlotData.getLast();
+            if(lastElem.getVolumeDb() != MAX_VOLUME_DB) //the guy is deaf very much
+                audiogramPlotData.popLast();
+        }
+    }
 }
 

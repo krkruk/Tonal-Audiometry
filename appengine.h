@@ -7,11 +7,17 @@
 #include "soundplayer.h"
 #include "audiogramchart.h"
 
+class AudiogramChartWidget;
+
+
 class AppEngine : public QObject
 {
     Q_OBJECT
+    friend class AudiogramChartWidget;
+    static constexpr int MAX_VOLUME_DB = 120;
 
     void createPlaylist();
+    void resetVariables();
 public:
     explicit AppEngine(QObject *parent = 0);
     ~AppEngine();
@@ -42,6 +48,7 @@ private:
     AudiogramData currentAudiogramData;
 
     bool canPopElement {false};
+    bool isEverButtonPressed {false};
 
 };
 

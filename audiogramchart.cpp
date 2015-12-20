@@ -1,7 +1,9 @@
 #include "audiogramchart.h"
+#include "appengine.h"
 #include <QDebug>
 #include <QObject>
-#include <QMatrix>
+#include <QVector>
+
 
 AudiogramChart::AudiogramChart(int width, int height)
     : AudiogramChart(QSize(width, height))
@@ -30,6 +32,11 @@ QPixmap AudiogramChart::getPixmap()
     QPainter p(&pixmap);
     paint(&p);
     return pixmap;
+}
+
+void AudiogramChart::setDataEnabled(bool enable)
+{
+    dataPlotEnable = enable;
 }
 
 void AudiogramChart::calculateStepsPx()
@@ -89,6 +96,7 @@ void AudiogramChart::createTextAxis(QPainter &path, int fontSizePx)
         row += verticalStepPx)
     {
         QRect rect(startDrawingCol, row - fontSizePx, w, h);
+        intensityPxLocation.insert(intensity, row);
         path.drawText(rect, Qt::AlignRight | Qt::AlignTop, QString::number(intensity));
         intensity += intensityStep;
     }
@@ -99,14 +107,22 @@ void AudiogramChart::createTextAxis(QPainter &path, int fontSizePx)
         col += horizontalStepPx)
     {
         QRect rect(col - h, startDrawingRow, w, h);
+
         if(freq <= 500 && i < 3)
+        {
             path.drawText(rect, Qt::AlignCenter | Qt::AlignBottom, QString::number(freq));
+            frequencyPxLocation.insert(freq, col);
+        }
         switch(i)   //a bit hackathon style :D!
         {
-        case 4: path.drawText(rect, Qt::AlignCenter | Qt::AlignBottom, "1000"); break;
-        case 6: path.drawText(rect, Qt::AlignCenter | Qt::AlignBottom, "2000"); break;
-        case 8: path.drawText(rect, Qt::AlignCenter | Qt::AlignBottom, "4000"); break;
-        case 10: path.drawText(rect, Qt::AlignCenter | Qt::AlignBottom, "8000"); break;
+        case 4: path.drawText(rect, Qt::AlignCenter | Qt::AlignBottom, "1000");
+            frequencyPxLocation.insert(1000, col);break;
+        case 6: path.drawText(rect, Qt::AlignCenter | Qt::AlignBottom, "2000");
+            frequencyPxLocation.insert(2000, col);break;
+        case 8: path.drawText(rect, Qt::AlignCenter | Qt::AlignBottom, "4000");
+            frequencyPxLocation.insert(4000, col);break;
+        case 10: path.drawText(rect, Qt::AlignCenter | Qt::AlignBottom, "8000");
+            frequencyPxLocation.insert(8000, col);break;
         default: break;
         }
 
@@ -134,19 +150,48 @@ void AudiogramChart::createTextLabel(QPainter &path, int fontSizePx)
     path.restore();
 }
 
+void AudiogramChart::plot(QPainter *painter)
+{
+    QVector<QPoint> points;
+    for(auto elem : *this)
+        points.append(getCoords(
+                          elem.getFrequency(),
+                          elem.getVolumeDb()));
+    painter->save();
+    QPen pen;
+    pen.setWidth(3);
+    pen.setColor(Qt::blue);
+    painter->setPen(pen);
+    painter->drawPolyline(points.data(), points.length());
+    painter->restore();
+}
+
 void AudiogramChart::paint(QPainter *painter)
 {
     auto path = createChartGrid();
     createTextAxis(*painter);
+    painter->drawPath(path);
     createTextLabel(*painter);
 
-    painter->drawPath(path);
+    if(dataPlotEnable)
+        plot(painter);
+
+
     painter->end();
 }
 
+QPoint AudiogramChart::getCoords(int frequency, int decibel)
+{
+    QPoint point(
+                frequencyPxLocation.value(frequency, 0),
+                intensityPxLocation.value(decibel, 0));
+    return point;
+}
 
-AudiogramChartWidget::AudiogramChartWidget()
-    : QQuickImageProvider(QQuickImageProvider::Pixmap)
+
+AudiogramChartWidget::AudiogramChartWidget(AppEngine *engine)
+    : QQuickImageProvider(QQuickImageProvider::Pixmap),
+      engine(engine)
 {
 
 }
@@ -158,18 +203,53 @@ AudiogramChartWidget::~AudiogramChartWidget()
 
 QPixmap AudiogramChartWidget::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
 {
-    int width = 640;
-    int height = 480;
-
     if (size)
         *size = QSize(width, height);
     if(requestedSize.width() > 0 && requestedSize.height() > 0)
-    {
-        AudiogramChart chart(requestedSize);
-//        if(id == "data")      //add data to audiogram
-//        {}
-        return chart.getPixmap();
-    }
+        *size = requestedSize;
+
     AudiogramChart chart(*size);
-    return chart.getPixmap();
+    QPixmap pixmap;
+    if(id == "data")
+        pixmap = drawData(&chart);
+    else
+    {
+        if(id == "blank")
+            pixmap = drawBlankChart(&chart);
+        else
+            pixmap = drawHelloWorld(size);
+    }
+
+    return pixmap;
+}
+
+QPixmap AudiogramChartWidget::drawData(AudiogramChart *chart)
+{
+    chart->update(engine->audiogramPlotData.getSortedData());
+    chart->setDataEnabled(true);
+    engine->audiogramPlotData.clear();
+    return chart->getPixmap();
+}
+
+QPixmap AudiogramChartWidget::drawBlankChart(AudiogramChart *chart)
+{
+    chart->setDataEnabled(true);
+    return chart->getPixmap();
+}
+
+QPixmap AudiogramChartWidget::drawHelloWorld(QSize *size)
+{
+    QPixmap pixmap(*size);
+    pixmap.fill(Qt::black);
+    QPainter painter(&pixmap);
+    QPen pen;
+    pen.setColor(Qt::white);
+    painter.setPen(pen);
+    auto font = painter.font();
+    font.setPixelSize(20);
+    font.setCapitalization(QFont::MixedCase);
+    painter.setFont(font);
+    QRect rect(0, 0, size->width(), size->height());
+    painter.drawText(rect, Qt::AlignHCenter | Qt::AlignVCenter, "Hello world :D!");
+    return pixmap;
 }
