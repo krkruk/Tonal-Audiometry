@@ -138,7 +138,7 @@ void SoundPlayer::onStateChanged(QAudio::State state)
         timeGapTimer->start();
         break;
     case QAudio::IdleState:
-//        qDebug() <<"Idle State";
+        qDebug() <<"Idle State";
         audioDevice->stop();
         break;
     default: break;

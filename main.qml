@@ -22,6 +22,12 @@ Window {
         width: mainWindow.width
         height: mainWindow.height * 0.075
     }
+    Image{
+        source: "image://audiogram"
+        width: parent.width
+        height: parent.height/2
+        anchors.centerIn: parent
+    }
 
     Button {
         id: quitButton

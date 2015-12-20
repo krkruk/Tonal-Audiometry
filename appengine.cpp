@@ -81,6 +81,11 @@ AppEngine::AppEngine(QObject *parent)
     audioFormat.setByteOrder(QAudioFormat::LittleEndian);
     audioFormat.setSampleType(QAudioFormat::SignedInt);
 
+    QAudioDeviceInfo info(QAudioDeviceInfo::defaultOutputDevice());
+    if (!info.isFormatSupported(audioFormat))
+        audioFormat = info.nearestFormat(audioFormat);
+
+
     player = new SoundPlayer(audioFormat, QAudioDeviceInfo::defaultOutputDevice(), this);
     createPlaylist();
     player->setPlaylist(&playlist);
@@ -128,7 +133,5 @@ void AppEngine::onPlaylistEnded()
 void AppEngine::onHearingButtonClicked()
 {
     setHearingButtonClicked();
-
-
 }
 

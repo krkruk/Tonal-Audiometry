@@ -144,3 +144,32 @@ void AudiogramChart::paint(QPainter *painter)
     painter->end();
 }
 
+
+AudiogramChartWidget::AudiogramChartWidget()
+    : QQuickImageProvider(QQuickImageProvider::Pixmap)
+{
+
+}
+
+AudiogramChartWidget::~AudiogramChartWidget()
+{
+
+}
+
+QPixmap AudiogramChartWidget::requestPixmap(const QString &id, QSize *size, const QSize &requestedSize)
+{
+    int width = 640;
+    int height = 480;
+
+    if (size)
+        *size = QSize(width, height);
+    if(requestedSize.width() > 0 && requestedSize.height() > 0)
+    {
+        AudiogramChart chart(requestedSize);
+//        if(id == "data")      //add data to audiogram
+//        {}
+        return chart.getPixmap();
+    }
+    AudiogramChart chart(*size);
+    return chart.getPixmap();
+}

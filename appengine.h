@@ -5,6 +5,7 @@
 #include <QAudioOutput>
 #include "filesound.h"
 #include "soundplayer.h"
+#include "audiogramchart.h"
 
 class AppEngine : public QObject
 {

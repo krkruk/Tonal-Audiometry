@@ -7,7 +7,8 @@
 #include <QPainterPath>
 #include <QImage>
 #include <QPixmap>
-#include "/home/krzysztof/Programming/Qt/QML/Audiometry/Audiometry/TonalAudiometry/audiogram.h"
+#include <QQuickImageProvider>
+#include "audiogram.h"
 
 
 class AudiogramChart
@@ -37,6 +38,15 @@ private:
     void createTextAxis(QPainter &path, int fontSizePx = 12);
     void createTextLabel(QPainter &path, int fontSizePx = 24);
     void paint(QPainter *painter);
+};
+
+class AudiogramChartWidget : public QQuickImageProvider
+{
+public:
+    AudiogramChartWidget();
+    ~AudiogramChartWidget();
+
+    QPixmap requestPixmap(const QString &id, QSize *size, const QSize &requestedSize);
 };
 
 #endif // AUDIOGRAMCHART_H

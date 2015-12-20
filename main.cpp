@@ -12,6 +12,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine engine;
     AppEngine appEngine;
     engine.rootContext()->setContextProperty("appEngine", &appEngine);
+    engine.addImageProvider(QLatin1String("audiogram"), new AudiogramChartWidget);
     engine.load(QUrl(QStringLiteral("qrc:/main.qml")));
 
     auto rootObjs = engine.rootObjects();
