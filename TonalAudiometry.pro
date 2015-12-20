@@ -10,7 +10,8 @@ SOURCES += main.cpp \
     soundplayer.cpp \
     audiogram.cpp \
     appengine.cpp \
-    volume.cpp
+    volume.cpp \
+    audiogramchart.cpp
 
 RESOURCES += qml.qrc \
     soundsamples.qrc
@@ -30,5 +31,6 @@ HEADERS += \
     audiogram.h \
     appengine.h \
     volume.h \
-    constants.h
+    constants.h \
+    audiogramchart.h
 
