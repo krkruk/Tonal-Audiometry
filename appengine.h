@@ -16,7 +16,7 @@ class AppEngine : public QObject
     Q_PROPERTY(QString topBarMsg READ topBarMsg WRITE setTopBarMsg NOTIFY topBarMsgChanged)
 
     friend class AudiogramChartWidget;
-    static constexpr int MAX_VOLUME_DB = 120;
+    static constexpr int MAX_AVAILABLE_VOLUME_DB = 100;
 
     void createPlaylist();
     void resetVariables();
@@ -56,7 +56,7 @@ private:
 
     bool canPopElement {false};
     bool isEverButtonPressed {false};
-
+    int previousFrequency {0};
     QString m_topBarMsg;
 };
 

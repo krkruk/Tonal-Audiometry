@@ -117,23 +117,17 @@ void SoundPlayer::onStateChanged(QAudio::State state)
     switch(state)
     {
     case QAudio::ActiveState:
-        qDebug() <<"Active State" << VolumeAlgorithm::soundPressureToDecibel(audioDevice->volume())
-                   << audioDevice->volume();
-        emit currentPlaylistElement(AudiogramData(
-                                        playlistIter->getCurrentFrequency(),
-                                        playlistIter->getCurrentVolumeDb(),
-                                        playlistIter->getCurrentVolumePercent()));
+        emit currentPlaylistElement(
+                    AudiogramData(  playlistIter->getCurrentFrequency(),
+                                    playlistIter->getCurrentVolumeDb(),
+                                    playlistIter->getCurrentVolumePercent()));
         break;
     case QAudio::SuspendedState:
-        qDebug() <<"Suspended State";
         break;
     case QAudio::StoppedState:
-//        qDebug() <<"Stopped State";
-
         timeGapTimer->start();
         break;
     case QAudio::IdleState:
-        qDebug() <<"Idle State";
         audioDevice->stop();
         emit stopPlaying();
         break;
