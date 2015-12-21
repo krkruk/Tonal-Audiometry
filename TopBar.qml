@@ -5,6 +5,12 @@ Rectangle {
     width: parent.width
     height: parent.height * 0.16
     color: barColor
+    gradient: Gradient {
+        GradientStop { color: barColor; position: 0.0}
+        GradientStop { color: Qt.rgba(16,16,16,0.2); position: 0.85}
+        GradientStop { color: barColor; position: 1.0}
+    }
+
     antialiasing: true
 
     property color barColor: "black"
@@ -20,8 +26,8 @@ Rectangle {
             width: topBarProto.height
             height: topBarProto.height
 
-            property int itemHeight: height * 0.12
-            property int itemWidth: width * 0.7
+            property int itemHeight: height * 0.055
+            property int itemWidth: width * 0.255
 
             Column {
                 spacing: iH
@@ -39,6 +45,16 @@ Rectangle {
                 id: menuAccessButtonMouseArea
                 anchors.fill: parent
                 onClicked: menuButtonClicked();
+            }
+        }
+        Rectangle{
+            id: spacer
+            height: topBarProto.height
+            width: 2
+            gradient: Gradient {
+                GradientStop { color: "black"; position: 0.0}
+                GradientStop { color: Qt.rgba(64,64,64,0.2); position: 0.85}
+                GradientStop { color: "black"; position: 1.0}
             }
         }
 

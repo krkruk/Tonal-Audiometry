@@ -29,12 +29,40 @@ Window {
         height: mainWindow.height * 0.075
         onMenuButtonClicked: Qt.quit()
     }
-    Image{
-        id: audiogram
-        source: "image://audiogram/helloWorld"
-        width: parent.width
-        height: parent.height/2
+    Column{
+        id: chartColumn
+
         anchors.centerIn: parent
+        property bool stripesVisible: false
+
+        Rectangle {
+            visible: chartColumn.stripesVisible
+            width: mainWindow.width
+            height: mainWindow.height/50
+            gradient: Gradient {
+                GradientStop{color: "black"; position: 0.0}
+                GradientStop{color: "gray"; position: 0.5}
+                GradientStop{color: "white"; position: 1.0}
+            }
+        }
+
+        Image{
+            id: audiogram
+            source: "image://audiogram/helloWorld"
+            width: mainWindow.width
+            height: mainWindow.height/2
+            onSourceChanged: chartColumn.stripesVisible = true
+        }
+        Rectangle {
+            visible: chartColumn.stripesVisible
+            width: mainWindow.width
+            height: mainWindow.height/50
+            gradient: Gradient {
+                GradientStop{color: "white"; position: 0.0}
+                GradientStop{color: "gray"; position: 0.5}
+                GradientStop{color: "black"; position: 1.0}
+            }
+        }
     }
 
     ChannelSelect {
@@ -75,7 +103,7 @@ Window {
                     name: "playingState"
                     PropertyChanges {
                         target: playButton
-                        text: qsTr("I hear the it!")
+                        text: qsTr("I hear it!")
                         onClicked: {
                             mainWindow.heardButtonClicked();
                         }

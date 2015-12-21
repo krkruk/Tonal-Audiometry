@@ -4,11 +4,16 @@ Rectangle {
     id: buttonProto
     width: 200
     height: 300
-    color: "black"
+    gradient: Gradient {
+        GradientStop { color: buttonColor; position: 0.0}
+        GradientStop { color: Qt.rgba(16,16,16,0.2); position: 0.15}
+        GradientStop { color: buttonColor; position: 1.0}
+    }
 
     property string text: "Button"
     property color textColor: "white"
     property int textPixelSize: height / 3
+    property color buttonColor: "black"
     signal clicked();
 
     Text {
