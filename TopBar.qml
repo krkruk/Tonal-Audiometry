@@ -5,9 +5,10 @@ Rectangle {
     width: parent.width
     height: parent.height * 0.16
     color: barColor
+    antialiasing: true
 
     property color barColor: "black"
-    property color menuBarColor: "lightgray"
+    property color menuBarColor: "white"
     property color textColor: "white"
     property string text: "Hello World"
 

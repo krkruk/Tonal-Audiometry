@@ -8,7 +8,7 @@ Rectangle {
 
     property string text: "Button"
     property color textColor: "white"
-    property int textPixelSize: 12
+    property int textPixelSize: height / 3
     signal clicked();
 
     Text {

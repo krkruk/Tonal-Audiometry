@@ -13,6 +13,8 @@ class AudiogramChartWidget;
 class AppEngine : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString topBarMsg READ topBarMsg WRITE setTopBarMsg NOTIFY topBarMsgChanged)
+
     friend class AudiogramChartWidget;
     static constexpr int MAX_VOLUME_DB = 120;
 
@@ -25,15 +27,20 @@ public:
     void setRootQmlObject(QObject *rootQmlObj);
     void connectAll();
 
+    QString topBarMsg() const { return m_topBarMsg; }
+
 signals:
-    void playlistEnded();
+    void playlistEnded();    
+    void topBarMsgChanged(QString topBarMsg);
 
 public slots:
-    void playPlaylist();
+    void playPlaylist(int direction);
     void onCurrentPlaylistElement(const AudiogramData &data);
     void onPlaylistEnded();
     void onHearingButtonClicked();
     void onAboutToPlayNextElement();
+
+    void setTopBarMsg(QString topBarMsg);
 
 private:
     QObject *rootObj {nullptr};
@@ -50,6 +57,7 @@ private:
     bool canPopElement {false};
     bool isEverButtonPressed {false};
 
+    QString m_topBarMsg;
 };
 
 #endif // APPENGINE_H

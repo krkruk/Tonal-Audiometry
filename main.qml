@@ -8,7 +8,7 @@ Window {
     height: 640
     color: "black"
 
-    signal playSequence();
+    signal playSequence(int channel);
     signal heardButtonClicked();
 
     Connections {
@@ -17,6 +17,9 @@ Window {
             playButton.state = "startPlayState"
             audiogram.source = "image://audiogram/data"
         }
+        onTopBarMsgChanged: {
+            topBar.text = topBarMsg
+        }
     }
 
     TopBar{
@@ -24,6 +27,7 @@ Window {
         anchors.top: parent.top
         width: mainWindow.width
         height: mainWindow.height * 0.075
+        onMenuButtonClicked: Qt.quit()
     }
     Image{
         id: audiogram
@@ -33,14 +37,15 @@ Window {
         anchors.centerIn: parent
     }
 
-    Button {
-        id: quitButton
+    ChannelSelect {
+        id: channelSelect
         anchors.left: parent.left
         anchors.bottom: parent.bottom
         width: mainWindow.width / 2
         height: 100
-        text: qsTr("Quit")
-        onClicked: Qt.quit()
+        onChannelChanged: playButton.channelSelectId = channel
+        onCurrentChannelName: topBar.text = channelName
+
     }
 
         Button {
@@ -51,6 +56,8 @@ Window {
             height: 100
             state: "startPlayState"
 
+            property int channelSelectId: 0
+
             states: [
                 State{
                     name: "startPlayState"
@@ -58,7 +65,7 @@ Window {
                         target: playButton
                         text: qsTr("Play")
                         onClicked: {
-                            mainWindow.playSequence();
+                            mainWindow.playSequence(channelSelectId);
                             state = "playingState";
                             audiogram.source = "image://audiogram/blank"
                         }
@@ -68,7 +75,7 @@ Window {
                     name: "playingState"
                     PropertyChanges {
                         target: playButton
-                        text: qsTr("I hear the sound")
+                        text: qsTr("I hear the it!")
                         onClicked: {
                             mainWindow.heardButtonClicked();
                         }

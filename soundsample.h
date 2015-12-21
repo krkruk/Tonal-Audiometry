@@ -14,13 +14,13 @@ namespace SoundSample
     };
 
     enum class Direction {
-        Left,
-        Right
+        Left = 0,
+        Right = 1
     };
 
     enum class VolumeType {
-        Decybel,
-        Percent
+        Decybel = 0,
+        Percent = 1
     };
 }
 #endif // SOUNDSAMPLE

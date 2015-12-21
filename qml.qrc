@@ -3,5 +3,6 @@
         <file>main.qml</file>
         <file>TopBar.qml</file>
         <file>Button.qml</file>
+        <file>ChannelSelect.qml</file>
     </qresource>
 </RCC>

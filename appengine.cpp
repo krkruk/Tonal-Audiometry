@@ -70,7 +70,7 @@ void AppEngine::resetVariables()
 
 void AppEngine::connectAll()
 {
-    connect(rootObj, SIGNAL(playSequence()), this, SLOT(playPlaylist()));
+    connect(rootObj, SIGNAL(playSequence(int)), this, SLOT(playPlaylist(int)));
     connect(rootObj, SIGNAL(heardButtonClicked()), this, SLOT(onHearingButtonClicked()));
     connect(player, SIGNAL(currentPlaylistElement(AudiogramData)), this, SLOT(onCurrentPlaylistElement(AudiogramData)));
     connect(player, SIGNAL(playlistEnded()), this, SLOT(onPlaylistEnded()));
@@ -111,10 +111,17 @@ void AppEngine::setRootQmlObject(QObject *rootQmlObj)
     rootObj = rootQmlObj;
 }
 
-void AppEngine::playPlaylist()
+void AppEngine::playPlaylist(int direction)
 {
     resetVariables();
-    player->playPlaylist(SoundSample::Direction::Left);
+    switch(direction)
+    {
+    case static_cast<int>(SoundSample::Direction::Left):
+        player->playPlaylist(SoundSample::Direction::Left); break;
+    case static_cast<int>(SoundSample::Direction::Right):
+        player->playPlaylist(SoundSample::Direction::Right); break;
+    default: setTopBarMsg(tr("Channel does not exist")); break;
+    }
 }
 
 void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
@@ -169,3 +176,11 @@ void AppEngine::onAboutToPlayNextElement()
     }
 }
 
+void AppEngine::setTopBarMsg(QString topBarMsg)
+{
+    if (m_topBarMsg == topBarMsg)
+        return;
+
+    m_topBarMsg = topBarMsg;
+    emit topBarMsgChanged(topBarMsg);
+}
