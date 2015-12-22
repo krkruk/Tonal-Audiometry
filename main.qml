@@ -5,18 +5,17 @@ import QtQuick.Dialogs 1.2
 Window {
     id: mainWindow
     visible: true
-    width: 0.75 * height
+    width: 480
     height: 640
     color: "black"
     title: "Tonal Audiometry"
 
     property int buttonsHeight: height * 0.15
 
-
     signal playSequence(int channel);
     signal stopPlaying();
     signal heardButtonClicked();
-    signal saveFileRequest(string url);
+    signal saveFileRequest(url urlPath);
 
     Item {
         id: main
@@ -220,11 +219,11 @@ Window {
         selectFolder: false
         selectMultiple: false
         selectExisting: false
-        nameFilters: [ "Image file (*.png)", "Image file (*.jpg)" ]
+        nameFilters: [ "Image file (*.png)", "Image file (*.bmp)", "Image file (*.jpg)" ]
 
         onAccepted: {
             main.state = "saveFile";
-            console.log("Url: " + saveDialog.fileUrl);
+            console.log("\nUrl: " + saveDialog.fileUrl);
             mainWindow.saveFileRequest(saveDialog.fileUrl)
         }
         onRejected: {

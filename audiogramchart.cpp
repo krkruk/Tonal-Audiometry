@@ -4,7 +4,9 @@
 #include <QDebug>
 #include <QObject>
 #include <QVector>
-
+#include <QImageWriter>
+#include <QUrl>
+#include <QDir>
 
 QString AudiogramChart::getIntensityLabel() const
 {
@@ -37,14 +39,17 @@ AudiogramChart::AudiogramChart(const QSize &size)
     calculateStepsPx();
 }
 
-bool AudiogramChart::saveImage(const QString &extensionName)
+bool AudiogramChart::saveImage(const QUrl &extensionName)
 {
     QImage img(chartSize, QImage::Format_RGB32);
     img.fill(Qt::white);
 
     QPainter p(&img);
     paint(&p);
-    return img.save(extensionName);
+    auto file = extensionName.toString(QUrl::RemoveScheme | QUrl::StripTrailingSlash);
+
+    file = file.remove(0,3);        //probably 0,2 on Linux
+    return img.save(file);
 }
 
 QPixmap AudiogramChart::getPixmap()

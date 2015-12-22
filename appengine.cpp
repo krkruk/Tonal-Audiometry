@@ -1,6 +1,5 @@
 #include "appengine.h"
 #include <QDebug>
-
 void AppEngine::createPlaylist()
 {
     playlist.addSound(std::shared_ptr<Sound>
@@ -74,7 +73,7 @@ void AppEngine::connectAll()
     connect(rootObj, SIGNAL(playSequence(int)), this, SLOT(playPlaylist(int)));
     connect(rootObj, SIGNAL(stopPlaying()), player, SLOT(stopPlaylist()));
     connect(rootObj, SIGNAL(heardButtonClicked()), this, SLOT(onHearingButtonClicked()));
-    connect(rootObj, SIGNAL(saveFileRequest(QString)), this, SLOT(saveFileRequest(QString)));
+    connect(rootObj, SIGNAL(saveFileRequest(QUrl)), this, SLOT(saveFileRequest(QUrl)));
     connect(player, SIGNAL(currentPlaylistElement(AudiogramData)), this, SLOT(onCurrentPlaylistElement(AudiogramData)));
     connect(player, SIGNAL(playlistEnded()), this, SLOT(onPlaylistEnded()));
     connect(player, SIGNAL(aboutToPlayNextElement()), this, SLOT(onAboutToPlayNextElement()));    
@@ -202,7 +201,7 @@ void AppEngine::setTopBarMsg(QString topBarMsg)
     emit topBarMsgChanged(topBarMsg);
 }
 
-void AppEngine::saveFileRequest(const QString &url)
+void AppEngine::saveFileRequest(const QUrl &url)
 {
     AudiogramChart chart(1024, 768);
     chart.setDataLeft(audiogramPlotDataLeft);
