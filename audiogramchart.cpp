@@ -7,6 +7,7 @@
 #include <QImageWriter>
 #include <QUrl>
 #include <QDir>
+#include <QtGlobal>
 
 QString AudiogramChart::getIntensityLabel() const
 {
@@ -48,7 +49,12 @@ bool AudiogramChart::saveImage(const QUrl &extensionName)
     paint(&p);
     auto file = extensionName.toString(QUrl::RemoveScheme | QUrl::StripTrailingSlash);
 
-    file = file.remove(0,3);        //probably 0,2 on Linux
+#ifdef Q_OS_WIN
+    file = file.remove(0,3);
+#else
+    file = file.remove(0,2);    //other systems
+#endif
+
     return img.save(file);
 }
 
