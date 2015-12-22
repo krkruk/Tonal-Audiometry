@@ -6,30 +6,30 @@ void AppEngine::createPlaylist()
                         {new FileSound(SoundSample::Frequency::Hz1000,
                          QString(":/soundSamples/soundSamples/Hz1000Left.wav"),
                          QString(":/soundSamples/soundSamples/Hz1000Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz250,
-//                         QString(":/soundSamples/soundSamples/Hz250Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz250Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz500,
-//                         QString(":/soundSamples/soundSamples/Hz500Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz500Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz125,
-//                         QString(":/soundSamples/soundSamples/Hz125Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz125Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz8000,
-//                         QString(":/soundSamples/soundSamples/Hz8000Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz8000Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz2000,
-//                         QString(":/soundSamples/soundSamples/Hz2000Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz2000Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz4000,
-//                         QString(":/soundSamples/soundSamples/Hz4000Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz4000Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz250,
+                         QString(":/soundSamples/soundSamples/Hz250Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz250Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz500,
+                         QString(":/soundSamples/soundSamples/Hz500Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz500Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz125,
+                         QString(":/soundSamples/soundSamples/Hz125Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz125Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz8000,
+                         QString(":/soundSamples/soundSamples/Hz8000Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz8000Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz2000,
+                         QString(":/soundSamples/soundSamples/Hz2000Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz2000Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz4000,
+                         QString(":/soundSamples/soundSamples/Hz4000Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz4000Right.wav"))});
 
 
 
@@ -42,14 +42,14 @@ void AppEngine::createPlaylist()
     volumesHL->setDecibelHearingLevelCalibrationGain(SoundSample::Frequency::Hz8000, 13.0);
 
 
-//    volumesHL->addVolume(70);
-//    volumesHL->addVolume(60);
-//    volumesHL->addVolume(50);
-//    volumesHL->addVolume(40);
-//    volumesHL->addVolume(30);
-//    volumesHL->addVolume(20);
-//    volumesHL->addVolume(10);
-//    volumesHL->addVolume(0);
+    volumesHL->addVolume(70);
+    volumesHL->addVolume(60);
+    volumesHL->addVolume(50);
+    volumesHL->addVolume(40);
+    volumesHL->addVolume(30);
+    volumesHL->addVolume(20);
+    volumesHL->addVolume(10);
+    volumesHL->addVolume(0);
     volumesHL->addVolume(MAX_AVAILABLE_VOLUME_DB);
     volumesHL->addVolume(90);
     volumesHL->addVolume(LAST_AVAILABLE_VOLUME_DB);
@@ -226,6 +226,7 @@ void AppEngine::saveFileRequest(const QUrl &url)
 
 void AudiometryAlgorithm::onCurrentPlaylistElement(const AudiogramData &data)
 {
+    hearButtonPressed = false;
     canSkipTrack = true;
     currentAudiogramData = data;
     if(currentAudiogramData.getVolumeDb() == MAX_AVAILABLE_VOLUME_DB)
@@ -245,7 +246,9 @@ void AudiometryAlgorithm::onCurrentPlaylistElement(const AudiogramData &data)
  */
 void AudiometryAlgorithm::onHearingButtonClicked()
 {
-    audiogramDataTemp.append(currentAudiogramData);
+    if(!hearButtonPressed)
+        audiogramDataTemp.append(currentAudiogramData);
+    hearButtonPressed = true;
     canSkipTrack = false;
     canSkipTrackMaxVol = false;
 }

@@ -36,7 +36,6 @@ Window {
             anchors.top: parent.top
             width: mainWindow.width
             height: mainWindow.height * 0.075
-//            text: appEngine.topBarMsg()
             onMenuButtonClicked: Qt.quit()
         }
 
@@ -195,6 +194,11 @@ Window {
                     target: saveDialog
                     visible: true
                 }
+                PropertyChanges {
+                    target: topBar
+                    functionButtonActive: false
+                    functionActionName: "Exit"
+                }
             },
             State {
                 name: "fileRejected"
@@ -223,13 +227,11 @@ Window {
 
         onAccepted: {
             main.state = "saveFile";
-            console.log("\nUrl: " + saveDialog.fileUrl);
             mainWindow.saveFileRequest(saveDialog.fileUrl)
         }
         onRejected: {
             main.state = "fileRejected";
             appEngine.setTopBarMsg(qsTr("Discarded"))
-            console.log("Rejected");
         }
     }
 

@@ -23,6 +23,7 @@ class AudiometryAlgorithm
     bool canSkipTrackMaxVol {false};
 
     SoundPlayer *player {nullptr};
+    bool hearButtonPressed{false};
 public:
     AudiometryAlgorithm(SoundPlayer *player)
         : player(player){}
