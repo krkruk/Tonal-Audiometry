@@ -17,6 +17,7 @@ class AppEngine : public QObject
 
     friend class AudiogramChartWidget;
     static constexpr int MAX_AVAILABLE_VOLUME_DB = 100;
+    static constexpr int LAST_AVAILABLE_VOLUME_DB = 80;
 
     void createPlaylist();
     void resetVariables();
@@ -58,6 +59,9 @@ private:
     QList<AudiogramData> audiogramDataTemp;
 
     bool canSkipTrack {false};
+    bool canSkipTrackMaxVol {false};
+
+    void updateAudiogramPlotData();
 
     QString m_topBarMsg;
 };

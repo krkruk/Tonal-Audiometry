@@ -171,7 +171,7 @@ void AppEngine::onHearingButtonClicked()
 }
 
 /*!
- * \brief AppEngine::onAboutToPlayNextElement Slot:
+ * \brief AppEngine::onAboutToPlayNextElement Slot: Creates
  */
 void AppEngine::onAboutToPlayNextElement()
 {
