@@ -1,16 +1,38 @@
 #include "audiogramchart.h"
 #include "appengine.h"
+#include "constants.h"
 #include <QDebug>
 #include <QObject>
 #include <QVector>
 
+
+QString AudiogramChart::getIntensityLabel() const
+{
+    return intensityLabel;
+}
+
+void AudiogramChart::setIntensityLabel(const QString &value)
+{
+    intensityLabel = value;
+}
+
+QString AudiogramChart::getFrequencyLabel() const
+{
+    return frequencyLabel;
+}
+
+void AudiogramChart::setFrequencyLabel(const QString &value)
+{
+    frequencyLabel = value;
+}
 
 AudiogramChart::AudiogramChart(int width, int height)
     : AudiogramChart(QSize(width, height))
 {}
 
 AudiogramChart::AudiogramChart(const QSize &size)
-    : chartSize(size)
+    : intensityLabel(Consts::intensityLabel),
+      frequencyLabel(Consts::frequencyLabel), chartSize(size)
 {
     calculateStepsPx();
 }
@@ -34,9 +56,27 @@ QPixmap AudiogramChart::getPixmap()
     return pixmap;
 }
 
-void AudiogramChart::setDataEnabled(bool enable)
+
+void AudiogramChart::setDataLeft(AudiogramPlotData &left)
 {
-    dataPlotEnable = enable;
+    leftDataSorted = left.getSortedData();
+    if(!leftDataSorted.isEmpty())
+        isLeftDataPresent = true;
+}
+
+void AudiogramChart::setDataRight(AudiogramPlotData &right)
+{
+    rightDataSorted = right.getSortedData();
+    if(!rightDataSorted.isEmpty())
+        isRightDataPresent = true;
+}
+
+void AudiogramChart::clearData()
+{
+    isRightDataPresent = false;
+    isLeftDataPresent = false;
+    rightDataSorted.clear();
+    leftDataSorted.clear();
 }
 
 void AudiogramChart::calculateStepsPx()
@@ -137,7 +177,7 @@ void AudiogramChart::createTextLabel(QPainter &path, int fontSizePx)
     font.setPixelSize(fontSizePx);
     path.setFont(font);
     QRect freqLabel(0, 0, chartSize.width(), fontSizePx * 2);
-    path.drawText(freqLabel, Qt::AlignHCenter | Qt::AlignTop, QObject::tr("Frequency [Hz]"));
+    path.drawText(freqLabel, Qt::AlignHCenter | Qt::AlignTop, frequencyLabel);
 
     //add a intensity label
     QMatrix mat;
@@ -146,38 +186,82 @@ void AudiogramChart::createTextLabel(QPainter &path, int fontSizePx)
     path.save();
     path.setMatrix(mat);
     QRect intensLabel(0, 0, chartSize.height(), fontSizePx * 2);
-    path.drawText(intensLabel, Qt::AlignHCenter | Qt::AlignTop, QObject::tr("Intensity [dB]"));
+    path.drawText(intensLabel, Qt::AlignHCenter | Qt::AlignTop, intensityLabel);
     path.restore();
 }
 
-void AudiogramChart::plot(QPainter *painter)
+void AudiogramChart::__plot(QPainter *painter, const QPen &pen, const QList<AudiogramData> &data, char signum)
 {
     QVector<QPoint> points;
-    for(auto elem : *this)
+    for(auto elem : data)
         points.append(getCoords(
                           elem.getFrequency(),
                           elem.getVolumeDb()));
     painter->save();
-    QPen pen;
-    pen.setWidth(3);
-    pen.setColor(Qt::blue);
     painter->setPen(pen);
     painter->drawPolyline(points.data(), points.length());
+    if(signum == 'o')
+    {
+        for(auto elem : points)
+            painter->drawEllipse(elem, PLOT_LINE_WIDTH, PLOT_LINE_WIDTH);
+    }
+    if(signum == 's')
+    {
+        for(auto elem : points)
+        {
+
+            painter->drawRect(elem.x() - PLOT_LINE_WIDTH,
+                              elem.y() - PLOT_LINE_WIDTH,
+                              PLOT_LINE_WIDTH*2, PLOT_LINE_WIDTH*2);
+        }
+    }
     painter->restore();
 }
 
-void AudiogramChart::paint(QPainter *painter)
+void AudiogramChart::plotLeft(QPainter *painter, const QPen &pen)
+{
+    __plot(painter, pen, leftDataSorted, 'o');
+}
+
+void AudiogramChart::plotRight(QPainter *painter, const QPen &pen)
+{
+    __plot(painter, pen, rightDataSorted, 's');
+}
+
+void AudiogramChart::__paint(QPainter *painter)
 {
     auto path = createChartGrid();
     createTextAxis(*painter);
     painter->drawPath(path);
     createTextLabel(*painter);
+}
 
-    if(dataPlotEnable)
-        plot(painter);
+void AudiogramChart::paint(QPainter *painter)
+{
+    __paint(painter);
 
+    if(isLeftDataPresent)
+        paintLeft(painter);
+    if(isRightDataPresent)
+        paintRight(painter);
 
     painter->end();
+}
+
+void AudiogramChart::paintLeft(QPainter *painter)
+{
+    QPen pen;
+    pen.setWidth(PLOT_LINE_WIDTH);
+    pen.setColor(Qt::blue);
+    plotLeft(painter, pen);
+}
+
+void AudiogramChart::paintRight(QPainter *painter)
+{
+    QPen pen;
+    pen.setWidth(PLOT_LINE_WIDTH);
+    pen.setColor(Qt::red);
+    plotRight(painter, pen);
 }
 
 QPoint AudiogramChart::getCoords(int frequency, int decibel)
@@ -225,15 +309,22 @@ QPixmap AudiogramChartWidget::requestPixmap(const QString &id, QSize *size, cons
 
 QPixmap AudiogramChartWidget::drawData(AudiogramChart *chart)
 {
-    chart->update(engine->audiogramPlotData.getSortedData());
-    chart->setDataEnabled(true);
-    engine->audiogramPlotData.clear();
+
+    chart->setDataRight(engine->audiogramPlotDataRight);
+    chart->setDataLeft(engine->audiogramPlotDataLeft);
+
+    qDebug() << "\n\n\n\n";
+    for(auto elem : engine->audiogramPlotDataLeft)
+        qDebug() << elem;
+    qDebug() << "\n";
+    for(auto elem : engine->audiogramPlotDataRight)
+        qDebug() << elem;
     return chart->getPixmap();
 }
 
 QPixmap AudiogramChartWidget::drawBlankChart(AudiogramChart *chart)
 {
-    chart->setDataEnabled(true);
+    chart->clearData();
     return chart->getPixmap();
 }
 

@@ -12,6 +12,9 @@ namespace Consts {
     constexpr char VOLUME_PERCENT_LEVEL[] = "VolumePercentLevel";
     constexpr char VOLUME_DECIBEL_SPL_LEVEL[] = "VolumeDecibelSoundPressureLevel";
     constexpr char VOLUME_DECIBEL_HEARING_LEVEL[] = "VolumeDecibelHearingLevel";
+
+    const QString intensityLabel = QObject::tr("Intensity [dB HL]");
+    const QString frequencyLabel = QObject::tr("Frequency [Hz]");
 }
 #endif // CONSTANTS
 

@@ -45,6 +45,8 @@ class AppEngine : public QObject
     Q_PROPERTY(QString topBarMsg READ topBarMsg WRITE setTopBarMsg NOTIFY topBarMsgChanged)
 
     friend class AudiogramChartWidget;
+    using SSDir = SoundSample::Direction;
+
     static constexpr int MAX_AVAILABLE_VOLUME_DB = 100;
     static constexpr int LAST_AVAILABLE_VOLUME_DB = 80;
 
@@ -82,8 +84,13 @@ private:
     std::shared_ptr<VolumeDecibelSoundPressureLevel> volumesSPL;
     std::shared_ptr<VolumeDecibelHearingLevel> volumesHL;
 
-    AudiogramPlotData audiogramPlotData;
     AudiometryAlgorithm *algorithm;
+
+    SSDir currentDirection {SSDir::None};
+
+    AudiogramPlotData audiogramPlotData;
+    AudiogramPlotData audiogramPlotDataLeft;
+    AudiogramPlotData audiogramPlotDataRight;
 
     QString m_topBarMsg;
 };

@@ -62,6 +62,11 @@ void AppEngine::createPlaylist()
 void AppEngine::resetVariables()
 {
     audiogramPlotData.clear();
+    if(currentDirection == SSDir::None)
+    {
+        audiogramPlotDataLeft.clear();
+        audiogramPlotDataRight.clear();
+    }
 }
 
 void AppEngine::connectAll()
@@ -113,6 +118,32 @@ void AppEngine::onPlaylistEnded()
     player->resetPlaylist();
     audiogramPlotData = algorithm->getAudiogramPlotData();
 
+    switch(currentDirection)
+    {
+    case SSDir::Left:
+        audiogramPlotDataLeft = algorithm->getAudiogramPlotData();
+        currentDirection = SSDir::None;
+        break;
+
+    case SSDir::Right:
+        audiogramPlotDataRight = algorithm->getAudiogramPlotData();
+        currentDirection = SSDir::None;
+        break;
+
+    case SSDir::OneAfterAnother:
+        audiogramPlotDataLeft = algorithm->getAudiogramPlotData();
+        algorithm->resetAll();
+        resetVariables();
+        currentDirection = SSDir::Right;
+        player->playPlaylist(currentDirection);
+        setTopBarMsg(tr("Right Channel"));
+        return;
+        break;
+
+    case SSDir::None:
+    default: break;
+    }
+
     emit playlistEnded();
 }
 
@@ -122,17 +153,31 @@ void AppEngine::playPlaylist(int direction)
     algorithm->resetAll();
     switch(direction)
     {
-    case static_cast<int>(SoundSample::Direction::Left):
-        player->playPlaylist(SoundSample::Direction::Left); break;
-    case static_cast<int>(SoundSample::Direction::Right):
-        player->playPlaylist(SoundSample::Direction::Right); break;
+    case static_cast<int>(SSDir::Left):
+        player->playPlaylist(SSDir::Left);
+        currentDirection = SSDir::Left;
+        setTopBarMsg(tr("Left Channel"));
+        break;
+
+    case static_cast<int>(SSDir::Right):
+        player->playPlaylist(SSDir::Right);
+        currentDirection = SSDir::Right;
+        setTopBarMsg(tr("Right Channel"));
+        break;
+
+    case static_cast<int>(SSDir::OneAfterAnother):
+        currentDirection = SSDir::OneAfterAnother;
+        player->playPlaylist(SSDir::Left);
+        setTopBarMsg(tr("Left Channel"));
+        break;
+
+    case static_cast<int>(SSDir::None):
     default: setTopBarMsg(tr("Channel does not exist")); break;
     }
 }
 
 void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
 {
-    qDebug() << data;
     algorithm->onCurrentPlaylistElement(data);
 }
 

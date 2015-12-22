@@ -15,7 +15,9 @@ namespace SoundSample
 
     enum class Direction {
         Left = 0,
-        Right = 1
+        Right = 1,
+        OneAfterAnother = 2,
+        None = 3
     };
 
     enum class VolumeType {

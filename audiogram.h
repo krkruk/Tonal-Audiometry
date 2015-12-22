@@ -73,6 +73,7 @@ public:
     QList<AudiogramData> getSortedData();
     bool popLast();
     AudiogramData getLast() const;
+    bool isEmpty() const { return audiogramData.isEmpty(); }
 
     QList<AudiogramData>::const_iterator begin() { return audiogramData.constBegin(); }
     QList<AudiogramData>::const_iterator end() { return audiogramData.constEnd(); }
