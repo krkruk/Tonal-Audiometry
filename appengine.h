@@ -34,9 +34,10 @@ signals:
     void topBarMsgChanged(QString topBarMsg);
 
 public slots:
+    void onPlaylistEnded();
     void playPlaylist(int direction);
     void onCurrentPlaylistElement(const AudiogramData &data);
-    void onPlaylistEnded();
+
     void onHearingButtonClicked();
     void onAboutToPlayNextElement();
 
@@ -53,10 +54,11 @@ private:
 
     AudiogramPlotData audiogramPlotData;
     AudiogramData currentAudiogramData;
+    AudiogramData previousAudiogramData;
+    QList<AudiogramData> audiogramDataTemp;
 
-    bool canPopElement {false};
-    bool isEverButtonPressed {false};
-    int previousFrequency {0};
+    bool canSkipTrack {false};
+
     QString m_topBarMsg;
 };
 

@@ -43,17 +43,17 @@ void AppEngine::createPlaylist()
     volumesHL->setDecibelHearingLevelCalibrationGain(SoundSample::Frequency::Hz8000, 13.0);
 
 
-    volumesHL->addVolume(70);
-    volumesHL->addVolume(60);
+//    volumesHL->addVolume(70);
+//    volumesHL->addVolume(60);
     volumesHL->addVolume(50);
-    volumesHL->addVolume(40);
-    volumesHL->addVolume(30);
-    volumesHL->addVolume(20);
-    volumesHL->addVolume(10);
-    volumesHL->addVolume(0);
+//    volumesHL->addVolume(40);
+//    volumesHL->addVolume(30);
+//    volumesHL->addVolume(20);
+//    volumesHL->addVolume(10);
+//    volumesHL->addVolume(0);
     volumesHL->addVolume(MAX_AVAILABLE_VOLUME_DB);
     volumesHL->addVolume(90);
-    volumesHL->addVolume(80);
+//    volumesHL->addVolume(80);
 
 
     playlist.setVolumeAlgoritm(volumesHL);
@@ -61,10 +61,7 @@ void AppEngine::createPlaylist()
 
 void AppEngine::resetVariables()
 {
-    canPopElement = false;
     audiogramPlotData.clear();
-    currentAudiogramData = AudiogramData();
-    isEverButtonPressed = false;
 }
 
 void AppEngine::connectAll()
@@ -110,6 +107,13 @@ void AppEngine::setRootQmlObject(QObject *rootQmlObj)
     rootObj = rootQmlObj;
 }
 
+void AppEngine::onPlaylistEnded()
+{
+    player->resetPlaylist();
+
+    emit playlistEnded();
+}
+
 void AppEngine::playPlaylist(int direction)
 {
     resetVariables();
@@ -125,61 +129,47 @@ void AppEngine::playPlaylist(int direction)
 
 void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
 {
-    /*
-     * A user is presumed not to hear the sound.
-     */
-    qDebug() << data;
-    audiogramPlotData.update(data);
-    canPopElement = false;
-    if(data.getFrequency() != previousFrequency)
-        isEverButtonPressed = false;
-}
+    canSkipTrack = false;
+    currentAudiogramData = data;
+    if(currentAudiogramData.getVolumeDb() == MAX_AVAILABLE_VOLUME_DB)
+    {
+        audiogramDataTemp.append(currentAudiogramData);
+        canSkipTrack = true;
+    }
 
-void AppEngine::onPlaylistEnded()
-{
-    player->resetPlaylist();
-
-    emit playlistEnded();
+    qDebug () << currentAudiogramData;
 }
 
 void AppEngine::onHearingButtonClicked()
 {
-    /*
-     * If the user heard the sound, he would press the button
-     */
-    canPopElement = true;
-    isEverButtonPressed = true;
+    audiogramDataTemp.append(currentAudiogramData);
+    canSkipTrack = false;
 }
 
 void AppEngine::onAboutToPlayNextElement()
 {
-    /*
-     * Check the user input. If he pressed the button,
-     * the current AudiogramData element is poped.
-     * If the user didn't hear the sound the current AudiogramData
-     * is not poped and the playlist skips to the next
-     * frequency
-     */
-    if(canPopElement)
+    if(previousAudiogramData.getFrequency()
+            != currentAudiogramData.getFrequency())
     {
-        if(isEverButtonPressed)
-            audiogramPlotData.popLast();
-        canPopElement = false;
-    }
-    else
-    {
-        auto lastElem = audiogramPlotData.getLast();
-        previousFrequency = lastElem.getFrequency();
-        if(isEverButtonPressed)
-            player->skipCurrentSoundSet();  //sound not heard - skip
-        else
+        if(!audiogramDataTemp.isEmpty())
         {
-            if(lastElem.getVolumeDb() != MAX_AVAILABLE_VOLUME_DB) //the guy is deaf very much
-                audiogramPlotData.popLast();
-            else
-                player->skipCurrentSoundSet();  //sound not heard at max db = deaf - skip
+            auto audiogramData = audiogramDataTemp.takeLast();
+            audiogramPlotData.update(audiogramData);
+            canSkipTrack = true;
         }
+        else
+            canSkipTrack = false;
     }
+
+    if(canSkipTrack && !audiogramDataTemp.isEmpty())
+    {
+        auto audiogramData = audiogramDataTemp.takeLast();
+        audiogramDataTemp.clear();
+        audiogramDataTemp.append(audiogramData);
+        player->skipCurrentSoundSet();
+    }
+
+    previousAudiogramData = currentAudiogramData;
 }
 
 void AppEngine::setTopBarMsg(QString topBarMsg)
