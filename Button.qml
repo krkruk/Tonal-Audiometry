@@ -4,6 +4,9 @@ Rectangle {
     id: buttonProto
     width: 200
     height: 300
+    enabled: active
+    visible: active
+
     gradient: Gradient {
         GradientStop { color: buttonColor; position: 0.0}
         GradientStop { color: Qt.rgba(16,16,16,0.2); position: 0.15}
@@ -14,6 +17,7 @@ Rectangle {
     property color textColor: "white"
     property int textPixelSize: height / 3
     property color buttonColor: "black"
+    property bool active: true
     signal clicked();
 
     Text {

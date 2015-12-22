@@ -65,6 +65,12 @@ QPair<QIODevice *, qreal> PlaylistIter::nextRight()
     return rightSoundSample;
 }
 
+void PlaylistIter::stop()
+{
+    soundIterator = soundEnd();
+    volumeIterator = volumeEnd();
+}
+
 /*!
  * \brief PlaylistIter::reset Resets all iterators to its beginings
  */

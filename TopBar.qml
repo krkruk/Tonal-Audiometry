@@ -16,9 +16,15 @@ Rectangle {
     property color barColor: "black"
     property color menuBarColor: "white"
     property color textColor: "white"
+    property color drawingColor: "white"
     property string text: "Hello World"
+    property string functionActionName: "Exit"  //possibilities: "Exit", "Save"
+    property bool functionButtonActive: false
 
     signal menuButtonClicked();
+    signal functionButtonClicked();
+
+    onFunctionActionNameChanged: drawing.requestPaint()
 
     Row {
         Item {
@@ -60,7 +66,11 @@ Rectangle {
 
         Item {
             id: textBar
-            width: topBarProto.width - menuAccessButton.width
+            width: {
+                var tempWidth = topBarProto.width - menuAccessButton.width ;
+                return topBarProto.functionButtonActive ?
+                            tempWidth-menuAccessButton.width : tempWidth;
+            }
             height: topBarProto.height
             Text{
                 id: textBarContent
@@ -69,9 +79,64 @@ Rectangle {
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.horizontalCenterOffset: -menuAccessButton.width / 2
                 color: topBarProto.textColor
-                font.pixelSize: parent.height * 0.75
+                font.pixelSize: parent.height * 0.6
             }
         }
+
+        Item {
+            id: functionButton
+            width: topBarProto.height
+            height: topBarProto.height
+            enabled: topBarProto.functionButtonActive
+            visible: topBarProto.functionButtonActive
+
+            Canvas {
+                id: drawing
+                anchors.centerIn: parent
+                width: parent.width/4
+                height: parent.height/4
+                onPaint: {
+                    var ctx = drawing.getContext("2d");
+                    ctx.clearRect(0, 0, width, height);
+                    ctx.beginPath();
+                    ctx.strokeStyle = topBarProto.drawingColor;
+                    ctx.lineWidth = 3;
+                    ctx.fillStyle = ctx.strokeStyle;
+
+                    if(topBarProto.functionActionName == "Save")
+                    {
+                        var h = height - 2;
+                        ctx.moveTo(0, height);              //horizontal line
+                        ctx.lineTo(width, h);
+                        var horiHalf = width / 2;
+                        var vertHalf = height / 2;
+                        ctx.moveTo(horiHalf, 0);            //vertical line
+                        ctx.lineTo(horiHalf, h);
+                        ctx.moveTo(0, vertHalf);            //backslash line
+                        ctx.lineTo(horiHalf, h);
+                        ctx.lineTo(width, vertHalf);        //slash line
+                        ctx.stroke();
+                    } else
+                    if(topBarProto.functionActionName == "Exit")
+                    {
+                        ctx.moveTo(0,0);
+                        ctx.lineTo(width, height);
+                        ctx.moveTo(width, 0);
+                        ctx.lineTo(0, height);
+                        ctx.stroke();
+                    } else
+                        console.log("Error: Invalid function request to draw");
+                }
+
+            }
+
+            MouseArea{
+                id: functionButtonMouseArea
+                anchors.fill: parent
+                onClicked: functionButtonClicked()
+            }
+        }
+
+
     }
 }
-

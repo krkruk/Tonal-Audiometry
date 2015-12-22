@@ -47,7 +47,7 @@ public:
     AudiogramChart(int width, int height);
     AudiogramChart(const QSize &size);
 
-    void saveJPG(const QString &noExtensionName);
+    bool saveImage(const QString &extensionName);
     QPixmap getPixmap();
 
     void setDataLeft(AudiogramPlotData &left);

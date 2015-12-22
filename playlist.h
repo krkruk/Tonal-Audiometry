@@ -23,6 +23,7 @@ public:
     virtual QPair<QIODevice*, qreal> nextRight();
 
     virtual void skipCurrentSoundSet() = 0;
+    virtual void stop();
     virtual void reset();
     virtual int getCurrentFrequency() const;
     virtual qreal getCurrentVolumeDb() const;

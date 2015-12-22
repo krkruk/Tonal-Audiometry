@@ -39,6 +39,9 @@ signals:
     void aboutToPlayNextElement();
     void stopPlaying();
 
+public slots:
+    void stopPlaylist();
+
 private slots:
     void onStateChanged(QAudio::State state);
     void playNextSample();
@@ -54,7 +57,7 @@ private:
     int noSoundTimeSpanMs {2000};
     qreal volumeAdjust {0.0};
 
-    SoundSample::Direction currentChannel {SoundSample::Direction::Left};
+    SoundSample::Direction currentChannel {SoundSample::Direction::None};
     QPair<QIODevice *, qreal> getSample() const;
     void setAudioDevice(QIODevice *device, qreal volume);
 };

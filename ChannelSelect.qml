@@ -1,12 +1,14 @@
 import QtQuick 2.0
 import QtQuick.Controls 1.4
 
-Rectangle {
+Item {
     id: channelSelectProto
     width: 100
     height: 100
-    color: "black"
+    enabled: active
+    visible: active
 
+    property bool active: true
     property color textColor: "white"
     property int textPixelSize: height / 3
     property color buttonColor: "black"
@@ -30,7 +32,6 @@ Rectangle {
             Rectangle{
                 width: channelSelectProto.width
                 height: channelSelectProto.height
-                color: channelSelectProto.color
                 gradient: Gradient {
                     GradientStop { color: channelSelectProto.buttonColor; position: 0.0}
                     GradientStop { color: Qt.rgba(16,16,16,0.2); position: 0.15}

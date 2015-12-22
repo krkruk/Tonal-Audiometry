@@ -74,6 +74,7 @@ public slots:
     void onAboutToPlayNextElement();
 
     void setTopBarMsg(QString topBarMsg);
+    void saveFileRequest(const QString &url);
 
 private:
     QObject *rootObj {nullptr};

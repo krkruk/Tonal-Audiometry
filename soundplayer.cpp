@@ -112,6 +112,16 @@ void SoundPlayer::setCorrectionAdjustVolume(qreal percent)
     volumeAdjust = percent;
 }
 
+/*!
+ * \brief SoundPlayer::stopPlaylist Stops playing a playlist if signal occured
+ */
+void SoundPlayer::stopPlaylist()
+{
+    audioDevice->stop();
+    timeGapTimer->stop();
+    playlistIter->stop();
+}
+
 void SoundPlayer::onStateChanged(QAudio::State state)
 {
     switch(state)

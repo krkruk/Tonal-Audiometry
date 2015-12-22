@@ -37,14 +37,14 @@ AudiogramChart::AudiogramChart(const QSize &size)
     calculateStepsPx();
 }
 
-void AudiogramChart::saveJPG(const QString &noExtensionName)
+bool AudiogramChart::saveImage(const QString &extensionName)
 {
-    QImage img(chartSize, QImage::Format_RGB16);
+    QImage img(chartSize, QImage::Format_RGB32);
     img.fill(Qt::white);
 
     QPainter p(&img);
     paint(&p);
-    img.save(noExtensionName, "JPG");
+    return img.save(extensionName);
 }
 
 QPixmap AudiogramChart::getPixmap()
@@ -309,16 +309,9 @@ QPixmap AudiogramChartWidget::requestPixmap(const QString &id, QSize *size, cons
 
 QPixmap AudiogramChartWidget::drawData(AudiogramChart *chart)
 {
-
     chart->setDataRight(engine->audiogramPlotDataRight);
     chart->setDataLeft(engine->audiogramPlotDataLeft);
 
-    qDebug() << "\n\n\n\n";
-    for(auto elem : engine->audiogramPlotDataLeft)
-        qDebug() << elem;
-    qDebug() << "\n";
-    for(auto elem : engine->audiogramPlotDataRight)
-        qDebug() << elem;
     return chart->getPixmap();
 }
 

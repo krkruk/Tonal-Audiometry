@@ -15,22 +15,22 @@ void AppEngine::createPlaylist()
                         {new FileSound(SoundSample::Frequency::Hz500,
                          QString(":/soundSamples/soundSamples/Hz500Left.wav"),
                          QString(":/soundSamples/soundSamples/Hz500Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz125,
-//                         QString(":/soundSamples/soundSamples/Hz125Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz125Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz8000,
-//                         QString(":/soundSamples/soundSamples/Hz8000Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz8000Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz2000,
-//                         QString(":/soundSamples/soundSamples/Hz2000Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz2000Right.wav"))});
-//    playlist.addSound(std::shared_ptr<Sound>
-//                        {new FileSound(SoundSample::Frequency::Hz4000,
-//                         QString(":/soundSamples/soundSamples/Hz4000Left.wav"),
-//                         QString(":/soundSamples/soundSamples/Hz4000Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz125,
+                         QString(":/soundSamples/soundSamples/Hz125Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz125Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz8000,
+                         QString(":/soundSamples/soundSamples/Hz8000Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz8000Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz2000,
+                         QString(":/soundSamples/soundSamples/Hz2000Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz2000Right.wav"))});
+    playlist.addSound(std::shared_ptr<Sound>
+                        {new FileSound(SoundSample::Frequency::Hz4000,
+                         QString(":/soundSamples/soundSamples/Hz4000Left.wav"),
+                         QString(":/soundSamples/soundSamples/Hz4000Right.wav"))});
 
 
 
@@ -43,14 +43,14 @@ void AppEngine::createPlaylist()
     volumesHL->setDecibelHearingLevelCalibrationGain(SoundSample::Frequency::Hz8000, 13.0);
 
 
-//    volumesHL->addVolume(70);
-//    volumesHL->addVolume(60);
-//    volumesHL->addVolume(50);
-//    volumesHL->addVolume(40);
-//    volumesHL->addVolume(30);
-//    volumesHL->addVolume(20);
-//    volumesHL->addVolume(10);
-//    volumesHL->addVolume(0);
+    volumesHL->addVolume(70);
+    volumesHL->addVolume(60);
+    volumesHL->addVolume(50);
+    volumesHL->addVolume(40);
+    volumesHL->addVolume(30);
+    volumesHL->addVolume(20);
+    volumesHL->addVolume(10);
+    volumesHL->addVolume(0);
     volumesHL->addVolume(MAX_AVAILABLE_VOLUME_DB);
     volumesHL->addVolume(90);
     volumesHL->addVolume(LAST_AVAILABLE_VOLUME_DB);
@@ -72,10 +72,12 @@ void AppEngine::resetVariables()
 void AppEngine::connectAll()
 {
     connect(rootObj, SIGNAL(playSequence(int)), this, SLOT(playPlaylist(int)));
+    connect(rootObj, SIGNAL(stopPlaying()), player, SLOT(stopPlaylist()));
     connect(rootObj, SIGNAL(heardButtonClicked()), this, SLOT(onHearingButtonClicked()));
+    connect(rootObj, SIGNAL(saveFileRequest(QString)), this, SLOT(saveFileRequest(QString)));
     connect(player, SIGNAL(currentPlaylistElement(AudiogramData)), this, SLOT(onCurrentPlaylistElement(AudiogramData)));
     connect(player, SIGNAL(playlistEnded()), this, SLOT(onPlaylistEnded()));
-    connect(player, SIGNAL(aboutToPlayNextElement()), this, SLOT(onAboutToPlayNextElement()));
+    connect(player, SIGNAL(aboutToPlayNextElement()), this, SLOT(onAboutToPlayNextElement()));    
 }
 
 
@@ -198,6 +200,17 @@ void AppEngine::setTopBarMsg(QString topBarMsg)
 
     m_topBarMsg = topBarMsg;
     emit topBarMsgChanged(topBarMsg);
+}
+
+void AppEngine::saveFileRequest(const QString &url)
+{
+    AudiogramChart chart(1024, 768);
+    chart.setDataLeft(audiogramPlotDataLeft);
+    chart.setDataRight(audiogramPlotDataRight);
+    if(chart.saveImage(url))
+        setTopBarMsg(tr("File saved!"));
+    else
+        setTopBarMsg(tr("Save error :("));
 }
 
 
