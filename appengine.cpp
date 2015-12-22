@@ -62,11 +62,6 @@ void AppEngine::createPlaylist()
 void AppEngine::resetVariables()
 {
     audiogramPlotData.clear();
-    audiogramDataTemp.clear();
-    currentAudiogramData = AudiogramData();
-    previousAudiogramData = AudiogramData();
-    canSkipTrack = false;
-    canSkipTrackMaxVol = false;
 }
 
 void AppEngine::connectAll()
@@ -100,6 +95,7 @@ AppEngine::AppEngine(QObject *parent)
     player = new SoundPlayer(audioFormat, QAudioDeviceInfo::defaultOutputDevice(), this);
     createPlaylist();
     player->setPlaylist(&playlist);
+    algorithm = new AudiometryAlgorithm(player);
 }
 
 AppEngine::~AppEngine()
@@ -115,6 +111,7 @@ void AppEngine::setRootQmlObject(QObject *rootQmlObj)
 void AppEngine::onPlaylistEnded()
 {
     player->resetPlaylist();
+    audiogramPlotData = algorithm->getAudiogramPlotData();
 
     emit playlistEnded();
 }
@@ -122,6 +119,7 @@ void AppEngine::onPlaylistEnded()
 void AppEngine::playPlaylist(int direction)
 {
     resetVariables();
+    algorithm->resetAll();
     switch(direction)
     {
     case static_cast<int>(SoundSample::Direction::Left):
@@ -131,6 +129,32 @@ void AppEngine::playPlaylist(int direction)
     default: setTopBarMsg(tr("Channel does not exist")); break;
     }
 }
+
+void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
+{
+    qDebug() << data;
+    algorithm->onCurrentPlaylistElement(data);
+}
+
+void AppEngine::onHearingButtonClicked()
+{
+    algorithm->onHearingButtonClicked();
+}
+
+void AppEngine::onAboutToPlayNextElement()
+{
+    algorithm->onAboutToPlayNextElement();
+}
+
+void AppEngine::setTopBarMsg(QString topBarMsg)
+{
+    if (m_topBarMsg == topBarMsg)
+        return;
+
+    m_topBarMsg = topBarMsg;
+    emit topBarMsgChanged(topBarMsg);
+}
+
 
 /*!
  * \brief AppEngine::onCurrentPlaylistElement Slot: Gets current AudiogramData
@@ -142,7 +166,8 @@ void AppEngine::playPlaylist(int direction)
  * whether current volume is maximal. These variables are therefore
  * interpreted in onAboutToPlayNextElement();
  */
-void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
+
+void AudiometryAlgorithm::onCurrentPlaylistElement(const AudiogramData &data)
 {
     canSkipTrack = true;
     currentAudiogramData = data;
@@ -151,8 +176,6 @@ void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
         audiogramDataTemp.append(currentAudiogramData);
         canSkipTrackMaxVol = true;
     }
-
-    qDebug () << currentAudiogramData;
 }
 
 /*!
@@ -163,7 +186,7 @@ void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
  * The function appends current AudiogramData pending into a buffer and
  * sets flag variables in order to influence onAboutToPlayNextElement();
  */
-void AppEngine::onHearingButtonClicked()
+void AudiometryAlgorithm::onHearingButtonClicked()
 {
     audiogramDataTemp.append(currentAudiogramData);
     canSkipTrack = false;
@@ -171,9 +194,9 @@ void AppEngine::onHearingButtonClicked()
 }
 
 /*!
- * \brief AppEngine::onAboutToPlayNextElement Slot:
+ * \brief AppEngine::onAboutToPlayNextElement Slot.
  */
-void AppEngine::onAboutToPlayNextElement()
+void AudiometryAlgorithm::onAboutToPlayNextElement()
 {
     //the last volume if clicked is added to the chart
     if(currentAudiogramData.getVolumeDb()
@@ -208,16 +231,29 @@ void AppEngine::onAboutToPlayNextElement()
     previousAudiogramData = currentAudiogramData;
 }
 
-void AppEngine::setTopBarMsg(QString topBarMsg)
+/*!
+ * \brief AudiometryAlgorithm::getAudiogramPlotData Gets AudiogramPlotData as a result of the algorithm
+ * \return AudiogramPlotData
+ */
+AudiogramPlotData AudiometryAlgorithm::getAudiogramPlotData() const
 {
-    if (m_topBarMsg == topBarMsg)
-        return;
-
-    m_topBarMsg = topBarMsg;
-    emit topBarMsgChanged(topBarMsg);
+    return audiogramPlotData;
 }
 
-void AppEngine::updateAudiogramPlotData()
+/*!
+ * \brief AudiometryAlgorithm::resetAll Restores variables to their default values
+ */
+void AudiometryAlgorithm::resetAll()
+{
+    audiogramPlotData.clear();
+    audiogramDataTemp.clear();
+    currentAudiogramData = AudiogramData();
+    previousAudiogramData = AudiogramData();
+    canSkipTrack = false;
+    canSkipTrackMaxVol = false;
+}
+
+void AudiometryAlgorithm::updateAudiogramPlotData()
 {
     auto audiogramData = audiogramDataTemp.takeLast();
     audiogramDataTemp.clear();

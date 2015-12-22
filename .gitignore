@@ -1,2 +1,6 @@
 #ignore user files
 *.user
+*.autosave
+*.cpp.autosave
+*.h.autosave
+*.*.autosave

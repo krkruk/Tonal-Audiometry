@@ -9,6 +9,35 @@
 
 class AudiogramChartWidget;
 
+class AudiometryAlgorithm
+{
+    static constexpr int MAX_AVAILABLE_VOLUME_DB = 100;
+    static constexpr int LAST_AVAILABLE_VOLUME_DB = 80;
+
+    AudiogramPlotData audiogramPlotData;
+    AudiogramData currentAudiogramData;
+    AudiogramData previousAudiogramData;
+    QList<AudiogramData> audiogramDataTemp;
+
+    bool canSkipTrack {false};
+    bool canSkipTrackMaxVol {false};
+
+    SoundPlayer *player {nullptr};
+public:
+    AudiometryAlgorithm(SoundPlayer *player)
+        : player(player){}
+
+    void onCurrentPlaylistElement(const AudiogramData &data);
+
+    void onHearingButtonClicked();
+    void onAboutToPlayNextElement();
+
+    AudiogramPlotData getAudiogramPlotData() const;
+    void resetAll();
+
+private:
+    void updateAudiogramPlotData();
+};
 
 class AppEngine : public QObject
 {
@@ -54,14 +83,7 @@ private:
     std::shared_ptr<VolumeDecibelHearingLevel> volumesHL;
 
     AudiogramPlotData audiogramPlotData;
-    AudiogramData currentAudiogramData;
-    AudiogramData previousAudiogramData;
-    QList<AudiogramData> audiogramDataTemp;
-
-    bool canSkipTrack {false};
-    bool canSkipTrackMaxVol {false};
-
-    void updateAudiogramPlotData();
+    AudiometryAlgorithm *algorithm;
 
     QString m_topBarMsg;
 };
