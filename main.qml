@@ -36,8 +36,12 @@ Window {
             anchors.top: parent.top
             width: mainWindow.width
             height: mainWindow.height * 0.075
-            onMenuButtonClicked: Qt.quit()
+            onMenuButtonClicked: {
+                menu.active = !menu.active
+            }
         }
+
+        Menu { id: menu; z: 1 }
 
         Flickable {
             id: audiogramArea
@@ -57,6 +61,7 @@ Window {
                 antialiasing: true
                 source: "image://audiogram/helloWorld"
             }
+
             MouseArea {
                 id: flickMouseArea
                 anchors.fill: parent
@@ -137,8 +142,8 @@ Window {
                     functionButtonActive: true
                     functionActionName: "Exit"
                     onFunctionButtonClicked: {
-                        mainWindow.stopPlaying();
                         main.state = "stopState"
+                        mainWindow.stopPlaying();
                     }
                 }
                 PropertyChanges {
@@ -215,6 +220,7 @@ Window {
 
         ]
     }
+
     FileDialog {
         id: saveDialog
         title: qsTr("Please choose a file destination")
@@ -233,6 +239,12 @@ Window {
             main.state = "fileRejected";
             appEngine.setTopBarMsg(qsTr("Discarded"))
         }
+    }
+
+
+    onStopPlaying: {
+        topBar.functionButtonActive = false;
+        topBar.functionActionName = "Exit"
     }
 
     Component.onCompleted: {
