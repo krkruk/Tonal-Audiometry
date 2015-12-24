@@ -12,6 +12,7 @@ class AudiogramChartWidget;
 class AudiometryAlgorithm
 {
     static constexpr int MAX_AVAILABLE_VOLUME_DB = 100;
+    static constexpr int MIN_AVAILABLE_VOLUME_DB = 0;
     static constexpr int LAST_AVAILABLE_VOLUME_DB = 80;
 
     AudiogramPlotData audiogramPlotData;
@@ -24,6 +25,7 @@ class AudiometryAlgorithm
 
     SoundPlayer *player {nullptr};
     bool hearButtonPressed{false};
+    bool canSkipMaxDueToButtonPressed {false};
 public:
     AudiometryAlgorithm(SoundPlayer *player)
         : player(player){}
@@ -49,6 +51,7 @@ class AppEngine : public QObject
     using SSDir = SoundSample::Direction;
 
     static constexpr int MAX_AVAILABLE_VOLUME_DB = 100;
+    static constexpr int MIN_AVAILABLE_VOLUME_DB = 0;
     static constexpr int LAST_AVAILABLE_VOLUME_DB = 80;
 
     void createPlaylist();
@@ -90,7 +93,6 @@ private:
 
     SSDir currentDirection {SSDir::None};
 
-    AudiogramPlotData audiogramPlotData;
     AudiogramPlotData audiogramPlotDataLeft;
     AudiogramPlotData audiogramPlotDataRight;
 

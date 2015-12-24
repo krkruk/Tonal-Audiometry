@@ -44,6 +44,14 @@ public:
     {
         return frequency > a.frequency;
     }
+    bool operator!=(const AudiogramData &a) const
+    {
+        return frequency != a.frequency;
+    }
+    bool operator==(const AudiogramData &a) const
+    {
+        return frequency == a.frequency;
+    }
 };
 
 class AudiogramObservable

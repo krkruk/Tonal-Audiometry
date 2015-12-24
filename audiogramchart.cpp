@@ -7,6 +7,7 @@
 #include <QImageWriter>
 #include <QUrl>
 #include <QDir>
+#include <cmath>
 #include <QtGlobal>
 
 QString AudiogramChart::getIntensityLabel() const
@@ -275,11 +276,13 @@ void AudiogramChart::paintRight(QPainter *painter)
     plotRight(painter, pen);
 }
 
-QPoint AudiogramChart::getCoords(int frequency, int decibel)
+QPoint AudiogramChart::getCoords(qreal frequency, qreal decibel)
 {
+    int freq = rint(frequency);
+    int db = rint(decibel);
     QPoint point(
-                frequencyPxLocation.value(frequency, 0),
-                intensityPxLocation.value(decibel, 0));
+                frequencyPxLocation.value(freq, 0),
+                intensityPxLocation.value(db, 0));
     return point;
 }
 

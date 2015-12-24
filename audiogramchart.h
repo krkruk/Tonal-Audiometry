@@ -76,7 +76,7 @@ private:
     void paintLeft(QPainter *painter);
     void paintRight(QPainter *painter);
 
-    QPoint getCoords(int frequency, int decibel);
+    QPoint getCoords(qreal frequency, qreal decibel);
 };
 
 class AudiogramChartWidget : public QQuickImageProvider

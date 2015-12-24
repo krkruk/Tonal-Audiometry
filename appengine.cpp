@@ -49,7 +49,7 @@ void AppEngine::createPlaylist()
     volumesHL->addVolume(30);
     volumesHL->addVolume(20);
     volumesHL->addVolume(10);
-    volumesHL->addVolume(0);
+    volumesHL->addVolume(MIN_AVAILABLE_VOLUME_DB);
     volumesHL->addVolume(MAX_AVAILABLE_VOLUME_DB);
     volumesHL->addVolume(90);
     volumesHL->addVolume(LAST_AVAILABLE_VOLUME_DB);
@@ -60,7 +60,6 @@ void AppEngine::createPlaylist()
 
 void AppEngine::resetVariables()
 {
-    audiogramPlotData.clear();
     if(currentDirection == SSDir::None)
     {
         audiogramPlotDataLeft.clear();
@@ -117,7 +116,6 @@ void AppEngine::setRootQmlObject(QObject *rootQmlObj)
 void AppEngine::onPlaylistEnded()
 {
     player->resetPlaylist();
-    audiogramPlotData = algorithm->getAudiogramPlotData();
 
     switch(currentDirection)
     {
@@ -179,6 +177,7 @@ void AppEngine::playPlaylist(int direction)
 
 void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
 {
+    qDebug() <<data;
     algorithm->onCurrentPlaylistElement(data);
 }
 
@@ -251,6 +250,8 @@ void AudiometryAlgorithm::onHearingButtonClicked()
     hearButtonPressed = true;
     canSkipTrack = false;
     canSkipTrackMaxVol = false;
+    if(currentAudiogramData == previousAudiogramData)
+        canSkipMaxDueToButtonPressed = true;
 }
 
 /*!
@@ -259,7 +260,7 @@ void AudiometryAlgorithm::onHearingButtonClicked()
 void AudiometryAlgorithm::onAboutToPlayNextElement()
 {
     //the last volume if clicked is added to the chart
-    if(currentAudiogramData.getVolumeDb()
+    if(rint(currentAudiogramData.getVolumeDb())
             == LAST_AVAILABLE_VOLUME_DB
             && !canSkipTrack)
     {
@@ -288,6 +289,23 @@ void AudiometryAlgorithm::onAboutToPlayNextElement()
             player->skipCurrentSoundSet();
     }
 
+    //skip the maximal volume if the button was ever
+    //pressed in this frequency currently played
+    if(rint(currentAudiogramData.getVolumeDb())
+            == MIN_AVAILABLE_VOLUME_DB
+            && canSkipMaxDueToButtonPressed)
+    {
+        updateAudiogramPlotData();
+
+        player->skipCurrentSoundSet();
+        canSkipTrackMaxVol = false;
+    }
+
+    //reset on a new freq
+    //max volume cannot be the first value or the last value
+    //max value must be placed after the minimal
+    if(currentAudiogramData != previousAudiogramData)
+        canSkipMaxDueToButtonPressed = false;
     previousAudiogramData = currentAudiogramData;
 }
 
