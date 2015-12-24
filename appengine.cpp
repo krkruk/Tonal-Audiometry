@@ -293,7 +293,8 @@ void AudiometryAlgorithm::onAboutToPlayNextElement()
     //pressed in this frequency currently played
     if(rint(currentAudiogramData.getVolumeDb())
             == MIN_AVAILABLE_VOLUME_DB
-            && canSkipMaxDueToButtonPressed)
+            && canSkipMaxDueToButtonPressed
+            && !audiogramDataTemp.isEmpty())
     {
         updateAudiogramPlotData();
 
