@@ -97,7 +97,7 @@ Window {
             width: mainWindow.width / 2
             height: mainWindow.buttonsHeight
             onChannelChanged: playButton.channelSelectId = channel
-            onCurrentChannelName: topBar.text = channelName
+//            onCurrentChannelName: topBar.text = channelName
 
         }
 
@@ -175,7 +175,6 @@ Window {
                     functionButtonActive: true
                     functionActionName: "Save"
                     onFunctionButtonClicked: {
-                        console.log("SaveFile")
                         main.state = "saveFile"
                     }
                 }
@@ -223,7 +222,7 @@ Window {
 
     FileDialog {
         id: saveDialog
-        title: qsTr("Please choose a file destination")
+        title: qsTr("Please choose a file destination...")
         folder: shortcuts.pictures
         visible: false
         selectFolder: false
@@ -237,17 +236,12 @@ Window {
         }
         onRejected: {
             main.state = "fileRejected";
-            appEngine.setTopBarMsg(qsTr("Discarded"))
+            appEngine.setTopBarMsg(qsTr("Discarded!"))
         }
     }
-
 
     onStopPlaying: {
         topBar.functionButtonActive = false;
         topBar.functionActionName = "Exit"
-    }
-
-    Component.onCompleted: {
-        topBar.text = "Slide, to choose a channel"
     }
 }

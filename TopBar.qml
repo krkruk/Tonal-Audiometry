@@ -5,19 +5,16 @@ Rectangle {
     width: parent.width
     height: parent.height * 0.16
     color: barColor
-    gradient: Gradient {
-        GradientStop { color: barColor; position: 0.0}
-        GradientStop { color: Qt.rgba(16,16,16,0.2); position: 0.85}
-        GradientStop { color: barColor; position: 1.0}
-    }
+    gradient: neutralBar
 
     antialiasing: true
 
-    property color barColor: "black"
+    property color barColor: Qt.rgba(0,0,0, 0.4)
     property color menuBarColor: "white"
     property color textColor: "white"
     property color drawingColor: "white"
-    property string text: "Hello World"
+    property color menuButtonColorActive: Qt.rgba(8,8,8, 0.2)
+    property string text: "Slide, to choose a channel"
     property string functionActionName: "Exit"  //possibilities: "Exit", "Save"
     property bool functionButtonActive: false
 
@@ -27,13 +24,15 @@ Rectangle {
     onFunctionActionNameChanged: drawing.requestPaint()
 
     Row {
-        Item {
+        Rectangle {
             id: menuAccessButton
             width: topBarProto.height
             height: topBarProto.height
+            color: "transparent"
 
             property int itemHeight: height * 0.055
             property int itemWidth: width * 0.255
+            property bool active: false
 
             Column {
                 spacing: iH
@@ -50,18 +49,36 @@ Rectangle {
             MouseArea {
                 id: menuAccessButtonMouseArea
                 anchors.fill: parent
-                onClicked: menuButtonClicked();
+                onClicked: { menuButtonClicked();
+                    if(menuAccessButton.active)
+                        menuAccessButton.state = "onUnactive"
+                    else
+                        menuAccessButton.state = "onActive"
+                    menuAccessButton.active = !menuAccessButton.active;
+                }
             }
+
+            states: [
+                State {
+                    name: "onUnactive"
+                    PropertyChanges { target: menuAccessButton;
+                        color: "transparent"; }
+                },
+                State {
+                    name: "onActive"
+                    PropertyChanges {
+                        target: menuAccessButton
+                        color: topBarProto.menuButtonColorActive
+                    }
+                }
+
+            ]
         }
         Rectangle{
             id: spacer
             height: topBarProto.height
             width: 2
-            gradient: Gradient {
-                GradientStop { color: "black"; position: 0.0}
-                GradientStop { color: Qt.rgba(64,64,64,0.2); position: 0.85}
-                GradientStop { color: "black"; position: 1.0}
-            }
+            color: topBarProto.menuButtonColorActive
         }
 
         Item {
@@ -76,19 +93,22 @@ Rectangle {
                 id: textBarContent
                 text: topBarProto.text
                 anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                anchors.horizontalCenterOffset: -menuAccessButton.width / 2
+                anchors.left: parent.left
+                anchors.leftMargin: font.pixelSize / 2
+//                anchors.horizontalCenter: parent.horizontalCenter
+//                anchors.horizontalCenterOffset: -menuAccessButton.width / 2
                 color: topBarProto.textColor
                 font.pixelSize: parent.height * 0.6
             }
         }
 
-        Item {
+        Rectangle {
             id: functionButton
             width: topBarProto.height
             height: topBarProto.height
             enabled: topBarProto.functionButtonActive
             visible: topBarProto.functionButtonActive
+            gradient: releasedGradient
 
             Canvas {
                 id: drawing
@@ -134,9 +154,75 @@ Rectangle {
                 id: functionButtonMouseArea
                 anchors.fill: parent
                 onClicked: functionButtonClicked()
+                onPressed: functionButton.state = "onPressed"
+                onReleased: functionButton.state = "onReleased"
             }
+
+            Gradient {
+                id: pressedGradient
+                GradientStop { color: Qt.rgba(8,8,8,0.1); position: 0.0}
+                GradientStop { color: barColor; position: 0.3}
+                GradientStop { color: barColor; position: 0.5}
+                GradientStop { color: barColor; position: 0.7}
+                GradientStop { color: Qt.rgba(8,8,8,0.1); position: 1.0}
+            }
+            Gradient {
+                id: releasedGradient
+                GradientStop { color: "transparent"; position: 1.0}
+            }
+            states: [
+                State {
+                    name: "onPressed"
+                    PropertyChanges {
+                        target: functionButton
+                        gradient: pressedGradient
+                    }
+                },
+                State {
+                    name: "onReleased"
+                    PropertyChanges {
+                        target: functionButton
+                        gradient: releasedGradient
+                    }
+                }
+            ]
+            transitions: [
+                Transition {
+                    from: "onPressed"; to: "onReleased"
+                    PropertyAnimation {
+                        property: "gradient"; duration: 100
+                        easing.type: Easing.OutSine
+                    }
+                }
+            ]
         }
+    }
 
+    Timer {
+        id: neutralBarTimer
+        interval: 500
+        onTriggered: topBarProto.gradient = neutralBar
+    }
 
+    Gradient {
+        id: neutralBar
+        GradientStop { color: Qt.rgba(8,8,8,0.1); position: 0}
+        GradientStop { color: barColor; position: 0.1}
+        GradientStop { color: barColor; position: 0.9}
+        GradientStop { color: Qt.rgba(8,8,8,0.1); position: 1}
+    }
+
+    Gradient {
+        id: msgReceivedBar
+        GradientStop { color: Qt.rgba(8,8,8,0.2); position: 0}
+        GradientStop { color: barColor; position: 0.4}
+        GradientStop { color: barColor; position: 0.5}
+        GradientStop { color: barColor; position: 0.6}
+        GradientStop { color: Qt.rgba(8,8,8,0.2); position: 1}
+    }
+
+    onTextChanged: {
+        topBarProto.gradient = msgReceivedBar
+        neutralBarTimer.start();
     }
 }

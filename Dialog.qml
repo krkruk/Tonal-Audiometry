@@ -18,6 +18,7 @@ Rectangle {
 
         TextEdit {
             id: textEdit
+            z: 2
             anchors.fill: parent
             color: textColor
             readOnly: true

@@ -11,7 +11,7 @@ Item {
     property bool active: true
     property color textColor: "white"
     property int textPixelSize: height / 3
-    property color buttonColor: "black"
+    property color buttonColor: Qt.rgba(0,0,0, 0.4)
 
     signal channelChanged(int channel);
     signal currentChannelName(string channelName);
@@ -32,12 +32,38 @@ Item {
             Rectangle{
                 width: channelSelectProto.width
                 height: channelSelectProto.height
-                gradient: Gradient {
-                    GradientStop { color: channelSelectProto.buttonColor; position: 0.0}
-                    GradientStop { color: Qt.rgba(16,16,16,0.2); position: 0.15}
-                    GradientStop { color: channelSelectProto.buttonColor; position: 1.0}
-                }
+                gradient: releasedGradient
+
                 property string buttonText: name
+
+                Gradient {
+                    id: pressedGradient
+                    GradientStop { color: Qt.rgba(8,8,8,0.1); position: 0}
+                    GradientStop { color: buttonColor; position: 0.3}
+                    GradientStop { color: buttonColor; position: 0.5}
+                    GradientStop { color: buttonColor; position: 0.7}
+                    GradientStop { color: Qt.rgba(8,8,8,0.1); position: 1}
+                }
+                Gradient {
+                    id: releasedGradient
+                    GradientStop { color: Qt.rgba(8,8,8,0.1); position: 0}
+                    GradientStop { color: buttonColor; position: 0.1}
+                    GradientStop { color: buttonColor; position: 0.9}
+                    GradientStop { color: Qt.rgba(8,8,8,0.1); position: 1}
+                }
+                MouseArea {
+                    anchors.fill: parent
+                    onPressed: {
+                        parent.gradient = pressedGradient
+                        timer.start()
+                    }
+                }
+                Timer {
+                    id: timer
+                    interval: 500
+                    onTriggered: parent.gradient = releasedGradient
+                }
+
                 Text {
                     anchors.horizontalCenter: parent.horizontalCenter
                     anchors.verticalCenter: parent.verticalCenter
@@ -52,7 +78,7 @@ Item {
         clip: true
         onCurrentIndexChanged: channelChanged(currentIndex)
         onCurrentItemChanged: currentChannelName(currentItem.buttonText)
-
     }
+
 
 }
