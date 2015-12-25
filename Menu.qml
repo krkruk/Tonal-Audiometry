@@ -15,6 +15,8 @@ Rectangle {
 
     property bool active: false
 
+    signal exitedMenuComponent()
+
     Item {
         id: menuItem
         anchors.fill: parent
@@ -38,6 +40,7 @@ Rectangle {
                     onClicked: {
                         var component = Qt.createComponent(file);
                         component.createObject(mainWindow)
+                        exitedMenuComponent()
                         menuProto.active = false;
                     }
                 }

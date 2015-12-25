@@ -17,11 +17,18 @@ Rectangle {
     property string text: "Slide, to choose a channel"
     property string functionActionName: "Exit"  //possibilities: "Exit", "Save"
     property bool functionButtonActive: false
+    property bool menuButtonActive: false
 
     signal menuButtonClicked();
     signal functionButtonClicked();
 
     onFunctionActionNameChanged: drawing.requestPaint()
+    onMenuButtonActiveChanged: {
+        if(menuButtonActive)
+            menuAccessButton.state = "onActive";
+        else
+            menuAccessButton.state = "onUnactive"
+    }
 
     Row {
         Rectangle {
@@ -32,7 +39,7 @@ Rectangle {
 
             property int itemHeight: height * 0.055
             property int itemWidth: width * 0.255
-            property bool active: false
+            property alias menuActive: topBarProto.menuButtonActive
 
             Column {
                 spacing: iH
@@ -50,11 +57,11 @@ Rectangle {
                 id: menuAccessButtonMouseArea
                 anchors.fill: parent
                 onClicked: { menuButtonClicked();
-                    if(menuAccessButton.active)
+                    if(menuAccessButton.menuActive)
                         menuAccessButton.state = "onUnactive"
                     else
                         menuAccessButton.state = "onActive"
-                    menuAccessButton.active = !menuAccessButton.active;
+                    menuAccessButton.menuActive = !menuAccessButton.menuActive;
                 }
             }
 

@@ -41,7 +41,10 @@ Window {
             }
         }
 
-        Menu { id: menu; z: 1 }
+        Menu {
+            id: menu; z: 1;
+            onExitedMenuComponent: topBar.menuButtonActive = false;
+        }
 
         Flickable {
             id: audiogramArea

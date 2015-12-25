@@ -8,6 +8,7 @@ Rectangle {
 
     property string text: ""
     property color textColor: "white"
+    property int textSizePx: 10
 
     Rectangle {
         id: rect
@@ -25,6 +26,7 @@ Rectangle {
             wrapMode: TextEdit.Wrap
             textFormat: TextEdit.RichText
             text: dialogPopup.text
+            font.pixelSize: dialogPopup.textSizePx
         }
     }
 
