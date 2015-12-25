@@ -7,5 +7,6 @@
         <file>Menu.qml</file>
         <file>About.qml</file>
         <file>Dialog.qml</file>
+        <file>Calibration.qml</file>
     </qresource>
 </RCC>

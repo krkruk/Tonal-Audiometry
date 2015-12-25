@@ -16,6 +16,9 @@ Rectangle {
     property bool active: false
 
     signal exitedMenuComponent()
+    signal calibDeclined()
+    signal calibAccepted(int decibel)
+    signal calibPlay()
 
     Item {
         id: menuItem
@@ -24,8 +27,8 @@ Rectangle {
         ListModel {
             id: listModel
             ListElement { name: "About"; file: "About.qml" }
-            ListElement { name: "Funkcja 2"; file: "funk2.qml" }
-            ListElement { name: "Funkcja 3"; file: "funk3.qml" }
+            ListElement { name: "Calibration"; file: "Calibration.qml" }
+            ListElement { name: "About"; file: "About.qml" }
         }
 
         ListView {
@@ -39,7 +42,14 @@ Rectangle {
                     text: name
                     onClicked: {
                         var component = Qt.createComponent(file);
-                        component.createObject(mainWindow)
+                        var obj = component.createObject(mainWindow)
+                        if(name=="Calibration")
+                        {
+                            obj.calibrationDeclined.connect (menuProto.calibDeclined);
+                            obj.calibrationAccepted.connect(menuProto.calibAccepted)
+                            obj.calibrationPlay.connect(menuProto.calibPlay)
+                        }
+
                         exitedMenuComponent()
                         menuProto.active = false;
                     }
