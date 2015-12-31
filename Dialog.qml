@@ -4,7 +4,7 @@ Rectangle {
     id: dialogPopup
     anchors.fill: parent
     z: 2
-    color: Qt.rgba(0,0,0, 0.5)
+    color: Qt.rgba(0,0,0, 0.95)
 
     property string text: ""
     property color textColor: "white"
