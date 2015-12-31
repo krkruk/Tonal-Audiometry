@@ -10,6 +10,7 @@ Rectangle {
     property color textColor: "white"
     property int textPixelSize: 12
 
+
     Rectangle {
         id: rect
         width: parent.height / 2
@@ -27,6 +28,7 @@ Rectangle {
             textFormat: TextEdit.RichText
             text: dialogPopup.text
             font.pixelSize: dialogPopup.textPixelSize
+
         }
     }
 

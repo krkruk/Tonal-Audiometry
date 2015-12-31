@@ -16,6 +16,8 @@ Window {
     signal stopPlaying();
     signal heardButtonClicked();
     signal saveFileRequest(url urlPath);
+    signal calibrationRequest(int decibel);
+    signal calibrationPlayRequest()
 
     Item {
         id: main
@@ -41,7 +43,12 @@ Window {
             }
         }
 
-        Menu { id: menu; z: 1 }
+        Menu {
+            id: menu; z: 1;
+            onExitedMenuComponent: topBar.menuButtonActive = false;
+            onCalibAccepted: calibrationRequest(decibel);
+            onCalibPlay: calibrationPlayRequest()
+        }
 
         Flickable {
             id: audiogramArea

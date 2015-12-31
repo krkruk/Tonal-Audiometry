@@ -23,6 +23,12 @@ Rectangle {
     signal functionButtonClicked();
 
     onFunctionActionNameChanged: drawing.requestPaint()
+    onMenuButtonActiveChanged: {
+        if(menuButtonActive)
+            menuAccessButton.state = "onActive";
+        else
+            menuAccessButton.state = "onUnactive"
+    }
 
     Row {
         Rectangle {
@@ -33,7 +39,7 @@ Rectangle {
 
             property int itemHeight: height * 0.055
             property int itemWidth: width * 0.255
-            property alias active: topBarProto.menuButtonActive
+            property alias menuActive: topBarProto.menuButtonActive
 
             Column {
                 spacing: iH
@@ -50,13 +56,13 @@ Rectangle {
             MouseArea {
                 id: menuAccessButtonMouseArea
                 anchors.fill: parent
-                onClicked: {
-                    menuButtonClicked();
-                    if(menuAccessButton.active)
+                onClicked: { menuButtonClicked();
+                    if(menuAccessButton.menuActive)
                         menuAccessButton.state = "onUnactive"
                     else
                         menuAccessButton.state = "onActive"
-                    topBarProto.menuButtonActive = !topBarProto.menuButtonActive;
+                    menuAccessButton.menuActive = !menuAccessButton.menuActive;
+
                 }
             }
 

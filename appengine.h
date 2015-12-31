@@ -79,6 +79,8 @@ public slots:
 
     void setTopBarMsg(QString topBarMsg);
     void saveFileRequest(const QUrl &url);
+    void calibrationRequest(int decibel);
+    void calibrationPlayRequest();
 
 private:
     QObject *rootObj {nullptr};

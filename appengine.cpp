@@ -54,6 +54,18 @@ void AppEngine::createPlaylist()
     volumesHL->addVolume(90);
     volumesHL->addVolume(LAST_AVAILABLE_VOLUME_DB);
 
+    volumesSPL->addVolume(70);
+    volumesSPL->addVolume(60);
+    volumesSPL->addVolume(50);
+    volumesSPL->addVolume(40);
+    volumesSPL->addVolume(30);
+    volumesSPL->addVolume(20);
+    volumesSPL->addVolume(10);
+    volumesSPL->addVolume(MIN_AVAILABLE_VOLUME_DB);
+    volumesSPL->addVolume(MAX_AVAILABLE_VOLUME_DB);
+    volumesSPL->addVolume(90);
+    volumesSPL->addVolume(LAST_AVAILABLE_VOLUME_DB);
+
 
     playlist.setVolumeAlgoritm(volumesHL);
 }
@@ -73,6 +85,8 @@ void AppEngine::connectAll()
     connect(rootObj, SIGNAL(stopPlaying()), player, SLOT(stopPlaylist()));
     connect(rootObj, SIGNAL(heardButtonClicked()), this, SLOT(onHearingButtonClicked()));
     connect(rootObj, SIGNAL(saveFileRequest(QUrl)), this, SLOT(saveFileRequest(QUrl)));
+    connect(rootObj, SIGNAL(calibrationRequest(int)), this, SLOT(calibrationRequest(int)));
+    connect(rootObj, SIGNAL(calibrationPlayRequest()), this, SLOT(calibrationPlayRequest()));
     connect(player, SIGNAL(currentPlaylistElement(AudiogramData)), this, SLOT(onCurrentPlaylistElement(AudiogramData)));
     connect(player, SIGNAL(playlistEnded()), this, SLOT(onPlaylistEnded()));
     connect(player, SIGNAL(aboutToPlayNextElement()), this, SLOT(onAboutToPlayNextElement()));    
@@ -209,6 +223,22 @@ void AppEngine::saveFileRequest(const QUrl &url)
         setTopBarMsg(tr("File saved!"));
     else
         setTopBarMsg(tr("Save error :("));
+}
+
+void AppEngine::calibrationRequest(int decibel)
+{
+//    qDebug() << decibel;
+    volumesHL->setVolumeGainDB(decibel);
+    volumesSPL->setVolumeGainDB(decibel);
+    //stop playing the sound 1kHz at 65 dB
+}
+
+void AppEngine::calibrationPlayRequest()
+{
+    if(currentDirection == SSDir::None)
+    {}
+    //start playing only if the sound is not being played right now
+    //play 1kHz at 65dB HL
 }
 
 
