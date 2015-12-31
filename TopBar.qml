@@ -17,6 +17,7 @@ Rectangle {
     property string text: "Slide, to choose a channel"
     property string functionActionName: "Exit"  //possibilities: "Exit", "Save"
     property bool functionButtonActive: false
+    property bool menuButtonActive: false
 
     signal menuButtonClicked();
     signal functionButtonClicked();
@@ -32,7 +33,7 @@ Rectangle {
 
             property int itemHeight: height * 0.055
             property int itemWidth: width * 0.255
-            property bool active: false
+            property alias active: topBarProto.menuButtonActive
 
             Column {
                 spacing: iH
@@ -49,12 +50,13 @@ Rectangle {
             MouseArea {
                 id: menuAccessButtonMouseArea
                 anchors.fill: parent
-                onClicked: { menuButtonClicked();
+                onClicked: {
+                    menuButtonClicked();
                     if(menuAccessButton.active)
                         menuAccessButton.state = "onUnactive"
                     else
                         menuAccessButton.state = "onActive"
-                    menuAccessButton.active = !menuAccessButton.active;
+                    topBarProto.menuButtonActive = !topBarProto.menuButtonActive;
                 }
             }
 
