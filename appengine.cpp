@@ -14,10 +14,10 @@ void AppEngine::createPlaylist()
                         {new FileSound(SoundSample::Frequency::Hz500,
                          QString(":/soundSamples/soundSamples/Hz500Left.wav"),
                          QString(":/soundSamples/soundSamples/Hz500Right.wav"))});
-    playlist.addSound(std::shared_ptr<Sound>
-                        {new FileSound(SoundSample::Frequency::Hz125,
-                         QString(":/soundSamples/soundSamples/Hz125Left.wav"),
-                         QString(":/soundSamples/soundSamples/Hz125Right.wav"))});
+//    playlist.addSound(std::shared_ptr<Sound>                                      //use only if the hardware quality is good
+//                        {new FileSound(SoundSample::Frequency::Hz125,
+//                         QString(":/soundSamples/soundSamples/Hz125Left.wav"),
+//                         QString(":/soundSamples/soundSamples/Hz125Right.wav"))});
     playlist.addSound(std::shared_ptr<Sound>
                         {new FileSound(SoundSample::Frequency::Hz8000,
                          QString(":/soundSamples/soundSamples/Hz8000Left.wav"),
@@ -191,7 +191,6 @@ void AppEngine::playPlaylist(int direction)
 
 void AppEngine::onCurrentPlaylistElement(const AudiogramData &data)
 {
-    qDebug() <<data;
     algorithm->onCurrentPlaylistElement(data);
 }
 
@@ -230,14 +229,14 @@ void AppEngine::calibrationRequest(int decibel)
 //    qDebug() << decibel;
     volumesHL->setVolumeGainDB(decibel);
     volumesSPL->setVolumeGainDB(decibel);
-    //stop playing the sound 1kHz at 65 dB
+    //TODO stop playing the sound 1kHz at 65 dB
 }
 
 void AppEngine::calibrationPlayRequest()
 {
     if(currentDirection == SSDir::None)
     {}
-    //start playing only if the sound is not being played right now
+    //TODO start playing only if the sound is not being played right now
     //play 1kHz at 65dB HL
 }
 

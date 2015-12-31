@@ -26,7 +26,6 @@ Rectangle {
 
         ListModel {
             id: listModel
-            ListElement { name: "About"; file: "About.qml" }
             ListElement { name: "Calibration"; file: "Calibration.qml" }
             ListElement { name: "About"; file: "About.qml" }
         }

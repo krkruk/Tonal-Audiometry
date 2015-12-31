@@ -9,6 +9,7 @@
 #include <QDir>
 #include <cmath>
 #include <QtGlobal>
+#include <QTextDocument>
 
 QString AudiogramChart::getIntensityLabel() const
 {
@@ -340,14 +341,38 @@ QPixmap AudiogramChartWidget::drawHelloWorld(QSize *size)
     QPixmap pixmap(*size);
     pixmap.fill(Qt::black);
     QPainter painter(&pixmap);
-    QPen pen;
-    pen.setColor(Qt::white);
-    painter.setPen(pen);
+
     auto font = painter.font();
+
     font.setPixelSize(20);
     font.setCapitalization(QFont::MixedCase);
     painter.setFont(font);
+    painter.setRenderHint(QPainter::Antialiasing);
     QRect rect(0, 0, size->width(), size->height());
-    painter.drawText(rect, Qt::AlignHCenter | Qt::AlignVCenter, "Hello world :D!");
+    QString text = "<p align=\"center\" style=\"color:white;\"><h1><strong>Tonal Audiometry</strong></h1></p>"
+                   "<p style=\"color:white;\">Test your hearing in a few simple steps.</p><ol style=\"color:white;\">"
+                   "<li>Select a channel you want to test (bottom-left corner)</li>"
+                   "<li>Tap \"Play!\". You will hear a series of sine tones at various intensities</li>"
+                   "<li>Tap \"I hear it!\" only if you really have heard the sound. It is important!</li>"
+                   "<li>If the test ends, save your audiogram! That's all! Simple, isn't it?</li></ol>";
+    QTextDocument doc(text);
+    doc.setPageSize(*size);
+    doc.setHtml(text);
+    doc.setDefaultFont(font);
+    doc.drawContents(&painter, rect);
+    QPen pen;
+    pen.setColor(Qt::blue);
+    painter.setPen(pen);
+    painter.drawText(rect, Qt::AlignLeft | Qt::AlignBottom, "Blue color - LEFT channel");
+    pen.setColor(Qt::red);
+    painter.setPen(pen);
+    painter.drawText(rect, Qt::AlignRight| Qt::AlignBottom, "Red color - RIGHT channel");
+
+    rect.setHeight(size->height() - font.pixelSize() * 1.5);
+    pen.setColor(Qt::white);
+    painter.setPen(pen);
+    painter.drawText(rect, Qt::AlignLeft | Qt::AlignBottom, "Legend:");
+    painter.end();
+
     return pixmap;
 }
