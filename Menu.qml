@@ -41,13 +41,18 @@ Rectangle {
                     text: name
                     onClicked: {
                         var component = Qt.createComponent(file);
-                        var obj = component.createObject(mainWindow)
                         if(name=="Calibration")
                         {
-                            obj.calibrationDeclined.connect (menuProto.calibDeclined);
-                            obj.calibrationAccepted.connect(menuProto.calibAccepted)
-                            obj.calibrationPlay.connect(menuProto.calibPlay)
+                            if(appEngine.calibrationAllowed)
+                            {
+                                var obj = component.createObject(mainWindow)
+                                obj.calibrationDeclined.connect (menuProto.calibDeclined);
+                                obj.calibrationAccepted.connect(menuProto.calibAccepted);
+                                calibPlay();
+                            }
+                            else appEngine.setTopBarMsgTimeOut(qsTr("Can't access it now!"), 3000)
                         }
+                        else obj = component.createObject(mainWindow);
 
                         exitedMenuComponent()
                         menuProto.active = false;

@@ -9,6 +9,7 @@
 #include "audiogram.h"
 
 class Playlist;
+class FileSound;
 
 class SoundPlayer : public QObject
 {
@@ -60,6 +61,40 @@ private:
     SoundSample::Direction currentChannel {SoundSample::Direction::None};
     QPair<QIODevice *, qreal> getSample() const;
     void setAudioDevice(QIODevice *device, qreal volume);
+};
+
+class SingleFilePlayer : public QObject
+{
+    Q_OBJECT
+
+public:
+    explicit SingleFilePlayer(const QAudioFormat &format,
+                              const QAudioDeviceInfo &info,
+                              QObject *parent = 0);
+    ~SingleFilePlayer();
+
+    FileSound *getFileSound() const;
+    void setFileSound(FileSound *value);
+
+    void setVolume(qreal volume);
+    qreal getVolume() const;
+
+signals:
+    void errorString(const QString &error);
+
+public slots:
+    void stop();
+    void start();
+
+private slots:
+    void onStateChanged(QAudio::State state);
+
+private:
+    QAudioOutput *audioDevice {nullptr};
+    QAudioDeviceInfo audioDeviceInfo;
+    FileSound *file {nullptr};
+
+    void setAudioDevice(QIODevice *device);
 };
 
 #endif // SOUNDPLAYER_H

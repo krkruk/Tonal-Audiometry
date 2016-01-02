@@ -138,7 +138,7 @@ may adjust it by sliding the value below.</p>')
                 }
             }
         }
-    }
 
-    Component.onCompleted: calibrationPlay()
+        Component.onCompleted: calibrationPlay();
+    }
 }

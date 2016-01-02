@@ -1,5 +1,6 @@
 #include <QDebug>
 #include "soundplayer.h"
+#include "filesound.h"
 
 #define DIRECTION_ERROR "Incorrect SoundSample::Direction"
 #define PLAYLIST_ERROR "Playlist error"
@@ -192,6 +193,99 @@ QPair<QIODevice *, qreal> SoundPlayer::getSample() const
 void SoundPlayer::setAudioDevice(QIODevice *device, qreal volume)
 {
     audioDevice->setVolume(volume + volumeAdjust);
+    if(!device->isOpen())
+    {
+        if(device->open(QIODevice::ReadOnly))
+            audioDevice->start(device);
+        else
+            emit errorString(SOUND_SAMPLE_OPEN_ERROR);
+    }
+    else
+        audioDevice->start(device);
+}
+
+SingleFilePlayer::SingleFilePlayer(const QAudioFormat &format,
+                                   const QAudioDeviceInfo &info, QObject *parent)
+    : QObject(parent), audioDevice(new QAudioOutput(info, format, this)),
+      audioDeviceInfo(info)
+{
+    connect(audioDevice, SIGNAL(stateChanged(QAudio::State)), this, SLOT(onStateChanged(QAudio::State)));
+}
+
+SingleFilePlayer::~SingleFilePlayer()
+{
+    audioDevice->stop();
+    delete audioDevice;
+}
+
+FileSound *SingleFilePlayer::getFileSound() const
+{
+    return file;
+}
+
+/*!
+ * \brief SingleFilePlayer::setFileSound Sets calibration output sound
+ * \param value FileSound pointer. Must contain left channel sound
+ *
+ * The method allows setting up the calibration sound. The left channel must
+ * be passed in order to achieve a result.
+ */
+void SingleFilePlayer::setFileSound(FileSound *value)
+{
+    auto leftChannel = value->getLeftSoundUrl();
+    if(!leftChannel.isEmpty())
+        file = value;
+}
+
+void SingleFilePlayer::setVolume(qreal volume)
+{
+    audioDevice->setVolume(volume);
+}
+
+qreal SingleFilePlayer::getVolume() const
+{
+    return audioDevice->volume();
+}
+
+void SingleFilePlayer::stop()
+{
+    audioDevice->stop();
+}
+
+void SingleFilePlayer::start()
+{
+    if(file)
+    {
+       auto calibrationSample = file->getSound(SoundSample::Direction::Left);
+       setAudioDevice(calibrationSample);
+    }
+}
+
+/*!
+ * \brief SingleFilePlayer::onStateChanged
+ * \param state
+ *
+ * Play the sound infinitely until SingleFilePlayer::stop() method is called
+ */
+void SingleFilePlayer::onStateChanged(QAudio::State state)
+{
+    switch(state)
+    {
+    case QAudio::ActiveState:
+        break;
+    case QAudio::SuspendedState:
+        break;
+    case QAudio::StoppedState:
+        break;
+    case QAudio::IdleState:
+        setAudioDevice(file->getSound(SoundSample::Direction::Left));
+        break;
+    default: break;
+    }
+}
+
+void SingleFilePlayer::setAudioDevice(QIODevice *device)
+{
     if(!device->isOpen())
     {
         if(device->open(QIODevice::ReadOnly))

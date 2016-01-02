@@ -17,7 +17,8 @@ Window {
     signal heardButtonClicked();
     signal saveFileRequest(url urlPath);
     signal calibrationRequest(int decibel);
-    signal calibrationPlayRequest()
+    signal calibrationDeclined();
+    signal calibrationPlayRequest();
 
     Item {
         id: main
@@ -28,7 +29,8 @@ Window {
             onPlaylistEnded: {
                 main.state = "stopState"
                 audiogram.source = "image://audiogram/data"
-                topBar.text = "Finished!"
+                appEngine.setTopBarMsg(qsTr("Tonal Audiometry"));
+                appEngine.setTopBarMsgTimeOut(qsTr("Finished!"), 10000);
             }
             onTopBarMsgChanged: topBar.text = appEngine.topBarMsg
         }
@@ -47,6 +49,7 @@ Window {
             id: menu; z: 1;
             onExitedMenuComponent: topBar.menuButtonActive = false;
             onCalibAccepted: calibrationRequest(decibel);
+            onCalibDeclined: calibrationDeclined();
             onCalibPlay: calibrationPlayRequest()
         }
 
@@ -92,7 +95,7 @@ Window {
             width: mainWindow.width
             anchors.bottom: parent.bottom
             active: false
-            text: "I hear it!"
+            text: qsTr("I hear it!")
 
             onClicked: heardButtonClicked()
         }
@@ -115,7 +118,7 @@ Window {
             width: mainWindow.width / 2
             height: mainWindow.buttonsHeight
             state: "startPlayState"
-            text: "Play!"
+            text: qsTr("Play!")
 
             property int channelSelectId: 0
 
@@ -150,6 +153,9 @@ Window {
                     functionActionName: "Exit"
                     onFunctionButtonClicked: {
                         main.state = "stopState"
+                        audiogram.source = "image://audiogram/helloWorld"
+                        appEngine.setTopBarMsg(qsTr("Tonal Audiometry"));
+                        ;appEngine.setTopBarMsgTimeOut(qsTr("Test cancelled"), 3000)
                         mainWindow.stopPlaying();
                     }
                 }
@@ -172,6 +178,10 @@ Window {
                 PropertyChanges{
                     target: channelSelect
                     active: true
+                }
+                PropertyChanges{
+                    target: appEngine
+                    calibrationAllowed: true
                 }
                 PropertyChanges{
                     target: hearButton
@@ -243,7 +253,7 @@ Window {
         }
         onRejected: {
             main.state = "fileRejected";
-            appEngine.setTopBarMsg(qsTr("Discarded!"))
+            appEngine.setTopBarMsgTimeOut(qsTr("Discarded!"), 2000)
         }
     }
 

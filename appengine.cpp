@@ -82,16 +82,28 @@ void AppEngine::resetVariables()
 void AppEngine::connectAll()
 {
     connect(rootObj, SIGNAL(playSequence(int)), this, SLOT(playPlaylist(int)));
-    connect(rootObj, SIGNAL(stopPlaying()), player, SLOT(stopPlaylist()));
+    connect(rootObj, SIGNAL(stopPlaying()), this, SLOT(stopPlaying()));
     connect(rootObj, SIGNAL(heardButtonClicked()), this, SLOT(onHearingButtonClicked()));
     connect(rootObj, SIGNAL(saveFileRequest(QUrl)), this, SLOT(saveFileRequest(QUrl)));
     connect(rootObj, SIGNAL(calibrationRequest(int)), this, SLOT(calibrationRequest(int)));
+    connect(rootObj, SIGNAL(calibrationDeclined()), calibrationPlayer, SLOT(stop()));
     connect(rootObj, SIGNAL(calibrationPlayRequest()), this, SLOT(calibrationPlayRequest()));
     connect(player, SIGNAL(currentPlaylistElement(AudiogramData)), this, SLOT(onCurrentPlaylistElement(AudiogramData)));
     connect(player, SIGNAL(playlistEnded()), this, SLOT(onPlaylistEnded()));
-    connect(player, SIGNAL(aboutToPlayNextElement()), this, SLOT(onAboutToPlayNextElement()));    
+    connect(player, SIGNAL(aboutToPlayNextElement()), this, SLOT(onAboutToPlayNextElement()));
 }
 
+void AppEngine::setTopBarMsgTimeOut(const QString &text, int msec)
+{
+    tempTopBarMsg = topBarMsg();
+    setTopBarMsg(text);
+    QTimer::singleShot(msec, this, SLOT(restoreTopBarMsg()));
+}
+
+bool AppEngine::calibrationAllowed() const
+{
+    return m_calibrationAllowed;
+}
 
 AppEngine::AppEngine(QObject *parent)
     : QObject(parent), rootObj(nullptr),
@@ -110,15 +122,23 @@ AppEngine::AppEngine(QObject *parent)
     if (!info.isFormatSupported(audioFormat))
         audioFormat = info.nearestFormat(audioFormat);
 
-
     player = new SoundPlayer(audioFormat, QAudioDeviceInfo::defaultOutputDevice(), this);
     createPlaylist();
     player->setPlaylist(&playlist);
     algorithm = new AudiometryAlgorithm(player);
+
+    calibrationSample = new FileSound(SoundSample::Frequency::Hz1000,
+                                     QString(":/soundSamples/soundSamples/Hz1000Left.wav"),
+                                     QString(":/soundSamples/soundSamples/Hz1000Right.wav"));
+    calibrationPlayer = new SingleFilePlayer(audioFormat, QAudioDeviceInfo::defaultOutputDevice(), this);
+    calibrationPlayer->setFileSound(calibrationSample);
+    calibrationPlayer->setVolume(VolumeAlgorithm::decibelToSoundPressureLevel(68));
 }
 
 AppEngine::~AppEngine()
 {
+    delete calibrationPlayer;
+    delete calibrationSample;
     delete player;
 }
 
@@ -154,7 +174,7 @@ void AppEngine::onPlaylistEnded()
         break;
 
     case SSDir::None:
-    default: break;
+    default: setCalibrationAllowed(true); break;
     }
 
     emit playlistEnded();
@@ -164,6 +184,7 @@ void AppEngine::playPlaylist(int direction)
 {
     resetVariables();
     algorithm->resetAll();
+    setCalibrationAllowed(false);
     switch(direction)
     {
     case static_cast<int>(SSDir::Left):
@@ -185,7 +206,7 @@ void AppEngine::playPlaylist(int direction)
         break;
 
     case static_cast<int>(SSDir::None):
-    default: setTopBarMsg(tr("Channel does not exist")); break;
+    default: setTopBarMsg(tr("Channel does not exist")); setCalibrationAllowed(true); break;
     }
 }
 
@@ -213,34 +234,51 @@ void AppEngine::setTopBarMsg(QString topBarMsg)
     emit topBarMsgChanged(topBarMsg);
 }
 
+void AppEngine::restoreTopBarMsg()
+{
+    setTopBarMsg(tempTopBarMsg);
+}
+
 void AppEngine::saveFileRequest(const QUrl &url)
 {
     AudiogramChart chart(1024, 768);
     chart.setDataLeft(audiogramPlotDataLeft);
     chart.setDataRight(audiogramPlotDataRight);
     if(chart.saveImage(url))
-        setTopBarMsg(tr("File saved!"));
+        setTopBarMsgTimeOut(tr("File saved!"), MSG_TIME_OUT_MSEC);
     else
-        setTopBarMsg(tr("Save error :("));
+        setTopBarMsgTimeOut(tr("Save error :("), MSG_TIME_OUT_MSEC);
 }
 
 void AppEngine::calibrationRequest(int decibel)
 {
-//    qDebug() << decibel;
     volumesHL->setVolumeGainDB(decibel);
     volumesSPL->setVolumeGainDB(decibel);
-    //TODO stop playing the sound 1kHz at 65 dB
+    calibrationPlayer->stop();
 }
 
 void AppEngine::calibrationPlayRequest()
 {
-    if(currentDirection == SSDir::None)
-    {}
-    //TODO start playing only if the sound is not being played right now
-    //play 1kHz at 65dB HL
+    if(isAnythingPlayingNow())
+    {
+        calibrationPlayer->start();
+    }
 }
 
+void AppEngine::stopPlaying()
+{
+    player->stopPlaylist();
+    currentDirection = SSDir::None;
+}
 
+void AppEngine::setCalibrationAllowed(bool calibrationAllowed)
+{
+    if (m_calibrationAllowed == calibrationAllowed)
+        return;
+
+    m_calibrationAllowed = calibrationAllowed;
+    emit calibrationAllowedChanged(calibrationAllowed);
+}
 /*!
  * \brief AppEngine::onCurrentPlaylistElement Slot: Gets current AudiogramData
  * \param data Audiogram data
