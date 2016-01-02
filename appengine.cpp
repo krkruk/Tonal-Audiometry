@@ -174,9 +174,11 @@ void AppEngine::onPlaylistEnded()
         break;
 
     case SSDir::None:
-    default: setCalibrationAllowed(true); break;
+    default: break;
     }
 
+    if(isAnythingPlayingNow())
+        setCalibrationAllowed(true);
     emit playlistEnded();
 }
 
@@ -260,9 +262,7 @@ void AppEngine::calibrationRequest(int decibel)
 void AppEngine::calibrationPlayRequest()
 {
     if(isAnythingPlayingNow())
-    {
         calibrationPlayer->start();
-    }
 }
 
 void AppEngine::stopPlaying()
