@@ -95,7 +95,7 @@ int PlaylistIter::getCurrentFrequency() const
  */
 qreal PlaylistIter::getCurrentVolumeDb() const
 {
-    return VolumeAlgorithm::soundPressureToDecibel(*volumeIterator);
+    return VolumeAlgorithm::soundPressureLevelToDecibel(*volumeIterator);
 }
 
 /*!

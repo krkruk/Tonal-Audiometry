@@ -111,9 +111,9 @@ qreal VolumeAlgorithm::calibrate(int freq, qreal volumePercent) const
 //    return VolumeAlgorithm::decibelToSoundPressure(
 //                volumeCalibration.getFrequencyCalibrationVolumeDB(freq))
 //            + volumePercent;
-    return VolumeAlgorithm::decibelToSoundPressure(
+    return VolumeAlgorithm::decibelToSoundPressureLevel(
                 volumeCalibration.getFrequencyCalibrationVolumeDB(freq)
-                + VolumeAlgorithm::soundPressureToDecibel(volumePercent));
+                + VolumeAlgorithm::soundPressureLevelToDecibel(volumePercent));
 }
 
 qreal VolumeAlgorithm::calibrate(qreal volumeDb) const
@@ -219,7 +219,7 @@ void VolumeAlgorithm::setVolumeScaleName(const QString &value)
  * The reference sound level is 0dB SPL at 1kHz frequency. The reference pressure is
  * 2*10^-5 Pa.
  */
-qreal VolumeAlgorithm::decibelToSoundPressure(qreal decibel)
+qreal VolumeAlgorithm::decibelToSoundPressureLevel(qreal decibel)
 {
     return Consts::PRESSURE_0dB * pow(10, decibel * 0.05);
 }
@@ -234,7 +234,7 @@ qreal VolumeAlgorithm::decibelToSoundPressure(qreal decibel)
  * The reference sound level is 0dB SPL at 1kHz frequency. The reference pressure is
  * 2*10^-5 Pa.
  */
-qreal VolumeAlgorithm::soundPressureToDecibel(qreal soundPressure)
+qreal VolumeAlgorithm::soundPressureLevelToDecibel(qreal soundPressure)
 {
     return 20 * log10(Consts::PRESSURE_0dB_INVERSED * soundPressure);
 }
@@ -278,7 +278,7 @@ VolumePercentLevel::VolumePercentLevel(VolumePercentLevel &&move)
  */
 qreal VolumeDecibelSoundPressureLevel::convert(qreal input)
 {
-    return VolumeAlgorithm::decibelToSoundPressure(calibrate(input));
+    return VolumeAlgorithm::decibelToSoundPressureLevel(calibrate(input));
 }
 /*!
  * \brief VolumeDecibelSoundPressureLevel::VolumeDecibelSoundPressureLevel Volume algorithm for dB SPL scale
@@ -308,7 +308,7 @@ VolumeDecibelSoundPressureLevel::VolumeDecibelSoundPressureLevel(
  */
 qreal VolumeDecibelHearingLevel::convert(qreal input)
 {
-    return VolumeAlgorithm::decibelToSoundPressure(input);
+    return VolumeAlgorithm::decibelToSoundPressureLevel(input);
 }
 
 /*!

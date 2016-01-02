@@ -74,8 +74,8 @@ public:
     QString getVolumeScaleName() const;
     void setVolumeScaleName(const QString &value);
 
-    static qreal decibelToSoundPressure(qreal decibel);
-    static qreal soundPressureToDecibel(qreal soundPressure);
+    static qreal decibelToSoundPressureLevel(qreal decibel);
+    static qreal soundPressureLevelToDecibel(qreal soundPressure);
 };
 
 class VolumePercentLevel : public VolumeAlgorithm
