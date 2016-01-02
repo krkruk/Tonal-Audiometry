@@ -350,11 +350,12 @@ QPixmap AudiogramChartWidget::drawHelloWorld(QSize *size)
     painter.setRenderHint(QPainter::Antialiasing);
     QRect rect(0, 0, size->width(), size->height());
     QString text = "<p align=\"center\" style=\"color:white;\"><h1><strong>Tonal Audiometry</strong></h1></p>"
-                   "<p style=\"color:white;\">Test your hearing in a few simple steps.</p><ol style=\"color:white;\">"
+                   "<p style=\"color:white;\">Test your hearing in a few simple steps.</p><p><ol style=\"color:white;\">"
                    "<li>Select a channel you want to test (bottom-left corner)</li>"
                    "<li>Tap \"Play!\". You will hear a series of sine tones at various intensities</li>"
                    "<li>Tap \"I hear it!\" only if you really have heard the sound. It is important!</li>"
-                   "<li>If the test ends, save your audiogram! That's all! Simple, isn't it?</li></ol>";
+                   "<li>If the test ends, save your audiogram! That's all! Simple, isn't it?</li></ol></p>"
+                   "<p style=\"color:white;\"><strong>Note: </strong>Please, set the headset and the mobile device to the maximum volume level.</p>";
     QTextDocument doc(text);
     doc.setPageSize(*size);
     doc.setHtml(text);
