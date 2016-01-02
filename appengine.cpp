@@ -42,14 +42,14 @@ void AppEngine::createPlaylist()
     volumesHL->setDecibelHearingLevelCalibrationGain(SoundSample::Frequency::Hz8000, 13.0);
 
 
-    volumesHL->addVolume(70);
-    volumesHL->addVolume(60);
-    volumesHL->addVolume(50);
-    volumesHL->addVolume(40);
-    volumesHL->addVolume(30);
-    volumesHL->addVolume(20);
-    volumesHL->addVolume(10);
-    volumesHL->addVolume(MIN_AVAILABLE_VOLUME_DB);
+//    volumesHL->addVolume(70);
+//    volumesHL->addVolume(60);
+//    volumesHL->addVolume(50);
+//    volumesHL->addVolume(40);
+//    volumesHL->addVolume(30);
+//    volumesHL->addVolume(20);
+//    volumesHL->addVolume(10);
+//    volumesHL->addVolume(MIN_AVAILABLE_VOLUME_DB);
     volumesHL->addVolume(MAX_AVAILABLE_VOLUME_DB);
     volumesHL->addVolume(90);
     volumesHL->addVolume(LAST_AVAILABLE_VOLUME_DB);
@@ -174,9 +174,11 @@ void AppEngine::onPlaylistEnded()
         break;
 
     case SSDir::None:
-    default: setCalibrationAllowed(true); break;
+    default: break;
     }
 
+    if(isAnythingPlayingNow())
+        setCalibrationAllowed(true);
     emit playlistEnded();
 }
 
